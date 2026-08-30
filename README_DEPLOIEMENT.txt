@@ -1,25 +1,25 @@
-JOE'S TRAFFIC SCOPE — JTS-01 V1.1 WEB / MOBILE
+JOE'S TRAFFIC SCOPE // JTS-01 V1.2 WEB
 
-OBJECTIF
-Cette version conserve l'interface JTS V1.0 et remplace le serveur Python local par des fonctions Netlify.
-Les routes /api/traffic, /api/wx/meta et /api/wx/tile restent identiques pour ne pas modifier le moteur visuel.
+WEB / MOBILE — NETLIFY
 
-DEPLOIEMENT GITHUB + NETLIFY
-1. Crée un nouveau dépôt GitHub, par exemple joes-traffic-scope-web.
-2. Dépose TOUT le contenu de ce dossier à la racine du dépôt (index.html, netlify.toml, manifest.webmanifest, sw.js et le dossier netlify).
-3. Dans Netlify : Add new project > Import an existing project > GitHub.
-4. Sélectionne le dépôt.
-5. Aucun Build command n'est nécessaire. Publish directory : .
-6. Deploy.
-7. Ouvre l'URL HTTPS fournie par Netlify.
+NOUVEAU V1.2
+- 6 presets personnels configurables
+- Edition du nom, latitude et longitude dans SETUP > MY PRESETS — EDIT
+- Bouton GPS pour mémoriser la position courante dans un preset
+- Sauvegarde locale dans le navigateur (localStorage) : chaque utilisateur conserve ses propres presets
+- RESET PRESETS restaure : LFPG, EGLL, KJFK, KLAX, RJTT, YSSY
+- Aucun compte ni base de données nécessaire
 
-SMARTPHONE
-- Ouvre l'URL HTTPS dans Safari/Chrome.
-- HOME / GPS peut utiliser la géolocalisation du téléphone après autorisation.
-- iPhone : Partager > Sur l'écran d'accueil.
-- Android : menu navigateur > Installer/Ajouter à l'écran d'accueil.
+DEPLOIEMENT
+Le dépôt GitHub est connecté à Netlify. Tout commit sur main déclenche automatiquement un nouveau déploiement.
 
-IMPORTANT
-- La V1.0 EXE reste la version Windows de référence et n'est pas modifiée.
-- Les API publiques ADSB.lol, OpenSky et RainViewer peuvent appliquer leurs propres limites ou changer leurs conditions d'accès.
-- Les fonctions Netlify servent de relais même domaine, ce qui évite de dépendre du CORS des API côté navigateur.
+Fichiers :
+index.html
+manifest.webmanifest
+sw.js
+netlify.toml
+netlify/functions/traffic.mjs
+netlify/functions/wx-meta.mjs
+netlify/functions/wx-tile.mjs
+
+Les routes /api/* sont gérées par les Netlify Functions.

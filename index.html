@@ -49,7 +49,7 @@ button.on{border-color:var(--g);box-shadow:inset 0 0 12px #267f20,0 0 7px rgba(1
 <div id="app">
 <main class="scope"><canvas id="scope"></canvas></main>
 <aside class="panel">
-<div class="head"><h1>JOE'S TRAFFIC SCOPE</h1><div class="sub">JTS-01 // LIVE ADS-B + WX // V1.0 FINAL</div></div>
+<div class="head"><h1>JOE'S TRAFFIC SCOPE</h1><div class="sub">JTS-01 // LIVE ADS-B + WX // V1.2 WEB</div></div>
 <div class="timegrid">
   <div class="b"><div class="k">UTC</div><div class="v" id="utc">--:--:--</div></div>
   <div class="b"><div class="k">LOCAL TIME</div><div class="v" id="localtime">--:--:--</div><div class="sm" id="tzname">LOCAL</div></div>
@@ -86,15 +86,8 @@ button.on{border-color:var(--g);box-shadow:inset 0 0 12px #267f20,0 0 7px rgba(1
 </div>
 
 <div class="b presetbox">
-  <div class="k">SPOTTING PRESETS</div>
-  <div class="presets">
-    <button data-airport="LPPR">LPPR</button>
-    <button data-airport="LPPT">LPPT</button>
-    <button data-airport="LPMA">LPMA</button>
-    <button data-airport="KLAX">KLAX</button>
-    <button data-airport="KJFK">KJFK</button>
-    <button data-airport="RKSO">RKSO</button>
-  </div>
+  <div class="k">MY PRESETS</div>
+  <div class="presets" id="presetButtons"></div>
 </div>
 
 <button id="setupBtn">SETUP</button>
@@ -104,6 +97,10 @@ button.on{border-color:var(--g);box-shadow:inset 0 0 12px #267f20,0 0 7px rgba(1
 <input id="ilat" placeholder="Latitude"><input id="ilon" placeholder="Longitude">
 <button id="fixed">USE FIXED POSITION</button><button id="gps">RETRY GPS</button>
 </div>
+<hr style="border:0;border-top:1px solid var(--d);margin:10px 0">
+<div class="k">MY PRESETS — EDIT</div>
+<div id="presetEditor" class="sm"></div>
+<button id="resetPresets" style="margin-top:6px;width:100%">RESET PRESETS</button>
 <hr style="border:0;border-top:1px solid var(--d);margin:10px 0">
 <div class="k">DISPLAY APPEARANCE</div>
 <div class="pixelgrid">
@@ -141,14 +138,22 @@ let presetMode="multi";
 let dataColors={call:'#c8c8c8',route:'#4aa8ff',type:'#ff3030',alt:'#48ff72',speed:'#58d98e',hdg:'#ffb02e'};
 function activeColor(key){if(presetMode==='mono')return G;if(presetMode==='amber')return '#ffb02e';if(presetMode==='atc'){const m={call:'#ffffff',route:'#62b8ff',type:'#bfc7c9',alt:'#63ff83',speed:'#63ff83',hdg:'#ffd15c'};return m[key]||G;}return dataColors[key]||G;}
 const tracks=new Map(),rad=d=>d*Math.PI/180,nowSec=()=>performance.now()/1000;
-const AIRPORTS={
-  LPPR:{lat:41.23556,lon:-8.67806,tz:"Europe/Lisbon"},
-  LPPT:{lat:38.77500,lon:-9.13500,tz:"Europe/Lisbon"},
-  LPMA:{lat:32.69417,lon:-16.77806,tz:"Atlantic/Madeira"},
-  KLAX:{lat:33.94250,lon:-118.40805,tz:"America/Los_Angeles"},
-  KJFK:{lat:40.64050,lon:-73.77886,tz:"America/New_York"},
-  RKSO:{lat:37.09000,lon:127.03000,tz:"Asia/Seoul"}
-};
+const DEFAULT_PRESETS=[
+  {name:"LFPG",lat:49.0097,lon:2.5479,tz:"Europe/Paris"},
+  {name:"EGLL",lat:51.4700,lon:-0.4543,tz:"Europe/London"},
+  {name:"KJFK",lat:40.6413,lon:-73.7781,tz:"America/New_York"},
+  {name:"KLAX",lat:33.9416,lon:-118.4085,tz:"America/Los_Angeles"},
+  {name:"RJTT",lat:35.5494,lon:139.7798,tz:"Asia/Tokyo"},
+  {name:"YSSY",lat:-33.9399,lon:151.1753,tz:"Australia/Sydney"}
+];
+function loadPresets(){try{const x=JSON.parse(localStorage.getItem("jts_my_presets"));if(Array.isArray(x)&&x.length===6)return x}catch(e){}return DEFAULT_PRESETS.map(x=>({...x}))}
+let myPresets=loadPresets();
+function savePresets(){localStorage.setItem("jts_my_presets",JSON.stringify(myPresets));renderPresetButtons();renderPresetEditor()}
+function renderPresetButtons(){const box=document.getElementById("presetButtons");if(!box)return;box.innerHTML="";myPresets.forEach((a,i)=>{const b=document.createElement("button");b.dataset.preset=i;b.textContent=(a.name||("P"+(i+1))).toUpperCase().slice(0,8);b.onclick=()=>usePreset(i);box.appendChild(b)})}
+function markPreset(i){document.querySelectorAll("[data-preset]").forEach(b=>b.classList.toggle("active",Number(b.dataset.preset)===i))}
+function usePreset(i){const a=myPresets[i];if(!a||!Number.isFinite(+a.lat)||!Number.isFinite(+a.lon))return;markPreset(i);setTZ(a.tz||Intl.DateTimeFormat().resolvedOptions().timeZone||"UTC");setStation(+a.lat,+a.lon,a.name||("PRESET "+(i+1)))}
+function renderPresetEditor(){const box=document.getElementById("presetEditor");if(!box)return;box.innerHTML="";myPresets.forEach((a,i)=>{const row=document.createElement("div");row.style.cssText="display:grid;grid-template-columns:52px 1fr 1fr 34px;gap:3px;margin:3px 0";row.innerHTML=`<input data-k="name" value="${String(a.name||'').replace(/"/g,'&quot;')}" title="Name"><input data-k="lat" value="${a.lat}" title="Latitude"><input data-k="lon" value="${a.lon}" title="Longitude"><button title="Save current GPS/center">GPS</button>`;const ins=row.querySelectorAll("input");ins.forEach(inp=>inp.onchange=()=>{const k=inp.dataset.k;myPresets[i][k]=k==='name'?inp.value.trim().toUpperCase().slice(0,8):Number(inp.value);savePresets()});row.querySelector("button").onclick=()=>{if(lat==null||lon==null)return;myPresets[i].lat=+lat.toFixed(6);myPresets[i].lon=+lon.toFixed(6);myPresets[i].tz=Intl.DateTimeFormat().resolvedOptions().timeZone||"UTC";savePresets()};box.appendChild(row)})}
+
 let activeTZ=Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
 function setTZ(tz){activeTZ=tz||"UTC";tzname.textContent=activeTZ}
 function updateClocks(){
@@ -157,14 +162,6 @@ function updateClocks(){
   try{
     localtime.textContent=new Intl.DateTimeFormat("fr-FR",{timeZone:activeTZ,hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).format(n);
   }catch(e){localtime.textContent="--:--:--"}
-}
-function markPreset(code){
-  document.querySelectorAll("[data-airport]").forEach(b=>b.classList.toggle("active",b.dataset.airport===code));
-}
-function useAirport(code){
-  const a=AIRPORTS[code]; if(!a)return;
-  markPreset(code); setTZ(a.tz);
-  setStation(a.lat,a.lon,code);
 }
 
 function resize(){const r=C.getBoundingClientRect(),d=devicePixelRatio||1;C.width=Math.round(r.width*d);C.height=Math.round(r.height*d)}
@@ -559,7 +556,8 @@ setInterval(()=>{if(wxOn)loadWX()},300000);
 document.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>{
  range=+b.dataset.r;rangev.textContent=range;document.querySelectorAll("[data-r]").forEach(q=>q.classList.toggle("on",q===b));traffic();if(wxOn)loadWX()
 });
-document.querySelectorAll("[data-airport]").forEach(b=>b.onclick=()=>useAirport(b.dataset.airport));
+renderPresetButtons();renderPresetEditor();
+resetPresets.onclick=()=>{if(confirm("Reset the 6 presets to defaults?")){myPresets=DEFAULT_PRESETS.map(x=>({...x}));savePresets()}};
 homeGps.onclick=()=>tryGPS();
 refreshData.onclick=forceTraffic;
 wxBtn.onclick=()=>{wxOn=!wxOn;wxBtn.textContent=wxOn?"WX ON":"WX OFF";wxBtn.classList.toggle("on",wxOn);if(wxOn)loadWX();else wxInfo.textContent="NO LAYER"};
