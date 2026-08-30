@@ -1,0 +1,593 @@
+<!doctype html>
+<html lang="fr"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#000700">
+<title>JOE'S TRAFFIC SCOPE // JTS-01</title>
+<style>
+:root{--g:#72ff55;--d:#1b661b;--bg:#000700}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;background:var(--bg);color:var(--g);font-family:"Courier New",monospace;overflow:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at center,transparent 55%,rgba(0,0,0,.32) 100%);z-index:19}
+body:after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.17) 0 1px,transparent 1px 3px);z-index:20}
+#app{width:100vw;height:100dvh;display:grid;grid-template-columns:minmax(0,1fr) clamp(245px,23vw,350px);gap:8px;padding:8px}
+.scope,.panel{border:1px solid var(--d);box-shadow:inset 0 0 24px rgba(25,130,25,.18)}
+.scope{min-width:0;min-height:0}.panel{padding:10px;display:flex;flex-direction:column;gap:8px;overflow:auto}
+canvas{display:block;width:100%;height:100%}
+h1{font-size:clamp(14px,1.7vw,23px);margin:1px;text-align:center;text-shadow:0 0 8px var(--g)}
+.sub{text-align:center;font-size:10px;border-bottom:1px solid var(--d);padding-bottom:8px}
+.b{border:1px solid var(--d);padding:8px}.k{font-size:10px;color:#4acb3d}.v{font-size:clamp(15px,2vw,23px)}
+.ranges{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:5px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:4px}.timegrid{display:grid;grid-template-columns:1fr 1fr;gap:4px}.presets{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:5px}.presets button.active{border-color:var(--g);box-shadow:inset 0 0 12px #267f20,0 0 7px rgba(114,255,85,.2)}
+button,input{font:inherit;color:var(--g);background:#001000;border:1px solid var(--d);padding:7px}
+button.on{border-color:var(--g);box-shadow:inset 0 0 12px #267f20,0 0 7px rgba(114,255,85,.2)}
+.sm{font-size:10px;line-height:1.55}#status{margin-top:auto}
+.setup{display:none}.setup.open{display:block}.setupgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:4px;padding-right:2px}.setupgrid input{width:75%;min-width:0}.setupgrid input:nth-child(2){justify-self:end}.setupgrid button{grid-column:1/-1}
+.credit{font-size:8px;opacity:.72;text-align:center}
+.displaymode{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:5px}
+.displaymode.triple{grid-template-columns:repeat(3,1fr)}
+.displaymode button{padding:7px 3px;font-size:10px}
+.displaymode button.active{border-color:var(--g);box-shadow:inset 0 0 12px #267f20,0 0 7px rgba(114,255,85,.2)}
+.pixelgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;align-items:center}.pixelgrid label{font-size:10px;color:#4acb3d}.pixelgrid input[type=range]{width:100%;padding:0}.pixelgrid select{font:inherit;color:var(--g);background:#001000;border:1px solid var(--d);padding:6px}
+
+@media(orientation:portrait){
+ html,body{overflow:auto}
+ #app{height:auto;min-height:100dvh;grid-template-columns:1fr;grid-template-rows:min(98vw,62dvh) auto}
+ .panel{display:grid;grid-template-columns:1fr 1fr;overflow:visible}
+ .head,.rangebox,.setup,.presetbox,.credit,.timegrid{grid-column:1/-1}#status{margin:0}
+}
+@media(max-width:520px) and (orientation:portrait){
+ #app{padding:4px;gap:4px}.panel{padding:5px;gap:5px}.b{padding:5px}.sm,.k,.sub{font-size:9px}
+}
+</style>
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#001500">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body>
+<div id="app">
+<main class="scope"><canvas id="scope"></canvas></main>
+<aside class="panel">
+<div class="head"><h1>JOE'S TRAFFIC SCOPE</h1><div class="sub">JTS-01 // LIVE ADS-B + WX // V1.0 FINAL</div></div>
+<div class="timegrid">
+  <div class="b"><div class="k">UTC</div><div class="v" id="utc">--:--:--</div></div>
+  <div class="b"><div class="k">LOCAL TIME</div><div class="v" id="localtime">--:--:--</div><div class="sm" id="tzname">LOCAL</div></div>
+</div>
+
+<div class="b rangebox">
+<div class="k">RANGE</div><div class="v"><span id="rangev">20</span> NM</div>
+<div class="ranges"><button data-r="5">05</button><button data-r="10">10</button><button class="on" data-r="20">20</button><button data-r="40">40</button><button data-r="80">80</button></div>
+</div>
+
+<div class="b displaybox">
+  <div class="k">DISPLAY</div>
+  <div class="displaymode triple">
+    <button id="radarMode" class="active">CLASSIC</button>
+    <button id="ledRadarMode">FB LED RADAR</button>
+    <button id="boardMode">FB BOARD</button>
+  </div>
+  <div class="sm" id="displayInfo">SCOPE / CRT</div>
+</div>
+
+<div class="row2">
+<div class="b"><div class="k">CONTACTS</div><div class="v" id="contacts">00</div></div>
+<div class="b"><div class="k">WEATHER</div><button id="wxBtn">WX OFF</button><div class="sm" id="wxInfo">NO LAYER</div></div>
+</div>
+
+<div class="b sm">DATA <span id="link">STANDBY</span><br>LAST RX <span id="last">--</span><br>FAILS <span id="fails">0</span><br>NEXT RX <span id="nextRx">15s</span><br>SOURCE <span id="apiDiag">--</span><br><button id="refreshData">REFRESH DATA</button></div>
+<div class="b sm"><div class="k">STATION</div><span id="station">ACQUIRING...</span></div>
+
+
+
+<div class="b">
+  <div class="k">CENTER</div>
+  <button id="homeGps">HOME / GPS</button>
+</div>
+
+<div class="b presetbox">
+  <div class="k">SPOTTING PRESETS</div>
+  <div class="presets">
+    <button data-airport="LPPR">LPPR</button>
+    <button data-airport="LPPT">LPPT</button>
+    <button data-airport="LPMA">LPMA</button>
+    <button data-airport="KLAX">KLAX</button>
+    <button data-airport="KJFK">KJFK</button>
+    <button data-airport="RKSO">RKSO</button>
+  </div>
+</div>
+
+<button id="setupBtn">SETUP</button>
+<div class="b setup" id="setup">
+<div class="k">FIXED STATION</div>
+<div class="setupgrid">
+<input id="ilat" placeholder="Latitude"><input id="ilon" placeholder="Longitude">
+<button id="fixed">USE FIXED POSITION</button><button id="gps">RETRY GPS</button>
+</div>
+<hr style="border:0;border-top:1px solid var(--d);margin:10px 0">
+<div class="k">DISPLAY APPEARANCE</div>
+<div class="pixelgrid">
+  <label>LED SIZE <span id="pitchLabel">5</span></label><input id="ledPitch" type="range" min="5" max="14" value="5" step="1">
+  <label>LED SHAPE</label><select id="ledShape"><option value="round">ROUND</option><option value="square">SQUARE</option></select>
+  <label>GLOW <span id="glowLabel">0</span>%</label><input id="ledGlow" type="range" min="0" max="100" value="0" step="5">
+  <label>BACKGROUND</label><input type="color" id="ledBg" value="#050505">
+  <label>LED OFF</label><input type="color" id="ledOff" value="#141414">
+  <label>STYLE</label><select id="colorPreset"><option value="mono">MONO GREEN</option><option value="amber">AMBER</option><option value="atc">ATC</option><option value="multi" selected>MULTICOLOR</option></select>
+</div>
+<hr style="border:0;border-top:1px solid var(--d);margin:10px 0">
+<div class="k">DATA COLORS</div>
+<div class="pixelgrid colors">
+<label>CALLSIGN</label><input type="color" id="colCall" value="#c8c8c8">
+<label>ROUTE / ID</label><input type="color" id="colRoute" value="#4aa8ff">
+<label>AIRCRAFT</label><input type="color" id="colType" value="#ff3030">
+<label>ALTITUDE</label><input type="color" id="colAlt" value="#48ff72">
+<label>SPEED</label><input type="color" id="colSpeed" value="#58d98e">
+<label>HEADING</label><input type="color" id="colHdg" value="#ffb02e">
+</div>
+</div>
+
+<div class="b sm" id="status">SYSTEM <span id="sys">INITIALIZING</span></div>
+<div class="credit">WEATHER DATA BY RAINVIEWER</div>
+</aside></div>
+
+<script>
+let lat=null,lon=null,range=20,failCount=0,lastGood=0,sweep=0,prevSweep=0,pollDelay=15000,pollTimer=null,requestBusy=false,countTimer=null;
+let wxOn=false,wxCanvas=null,wxFrameTime=null,wxLoading=false;
+let displayMode=localStorage.getItem("jts_display_mode")||"radar",ledPitch=5,ledShape="round",ledGlow=0;
+let ledBgColor="#050505",ledOffColor="#141414";
+let fbSelected=0,fbLastCycle=performance.now();
+const C=document.getElementById("scope"),X=C.getContext("2d"),G="#72ff55",D="#1b661b";
+let presetMode="multi";
+let dataColors={call:'#c8c8c8',route:'#4aa8ff',type:'#ff3030',alt:'#48ff72',speed:'#58d98e',hdg:'#ffb02e'};
+function activeColor(key){if(presetMode==='mono')return G;if(presetMode==='amber')return '#ffb02e';if(presetMode==='atc'){const m={call:'#ffffff',route:'#62b8ff',type:'#bfc7c9',alt:'#63ff83',speed:'#63ff83',hdg:'#ffd15c'};return m[key]||G;}return dataColors[key]||G;}
+const tracks=new Map(),rad=d=>d*Math.PI/180,nowSec=()=>performance.now()/1000;
+const AIRPORTS={
+  LPPR:{lat:41.23556,lon:-8.67806,tz:"Europe/Lisbon"},
+  LPPT:{lat:38.77500,lon:-9.13500,tz:"Europe/Lisbon"},
+  LPMA:{lat:32.69417,lon:-16.77806,tz:"Atlantic/Madeira"},
+  KLAX:{lat:33.94250,lon:-118.40805,tz:"America/Los_Angeles"},
+  KJFK:{lat:40.64050,lon:-73.77886,tz:"America/New_York"},
+  RKSO:{lat:37.09000,lon:127.03000,tz:"Asia/Seoul"}
+};
+let activeTZ=Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+function setTZ(tz){activeTZ=tz||"UTC";tzname.textContent=activeTZ}
+function updateClocks(){
+  const n=new Date();
+  utc.textContent=n.toISOString().slice(11,19);
+  try{
+    localtime.textContent=new Intl.DateTimeFormat("fr-FR",{timeZone:activeTZ,hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).format(n);
+  }catch(e){localtime.textContent="--:--:--"}
+}
+function markPreset(code){
+  document.querySelectorAll("[data-airport]").forEach(b=>b.classList.toggle("active",b.dataset.airport===code));
+}
+function useAirport(code){
+  const a=AIRPORTS[code]; if(!a)return;
+  markPreset(code); setTZ(a.tz);
+  setStation(a.lat,a.lon,code);
+}
+
+function resize(){const r=C.getBoundingClientRect(),d=devicePixelRatio||1;C.width=Math.round(r.width*d);C.height=Math.round(r.height*d)}
+addEventListener("resize",resize);resize();
+
+function nav(a,b,c,d){
+ const R=3440.065,p1=rad(a),p2=rad(c),dp=rad(c-a),dl=rad(d-b);
+ const q=Math.sin(dp/2)**2+Math.cos(p1)*Math.cos(p2)*Math.sin(dl/2)**2;
+ return [R*2*Math.atan2(Math.sqrt(q),Math.sqrt(1-q)),
+ (Math.atan2(Math.sin(dl)*Math.cos(p2),Math.cos(p1)*Math.sin(p2)-Math.sin(p1)*Math.cos(p2)*Math.cos(dl))*180/Math.PI+360)%360];
+}
+function ident(a){return String(a.flight||a.r||a.hex||"UNKNOWN").trim()}
+function altitude(a){let v=a.alt_baro??a.alt_geom;if(v==="ground")return"GND";return Number.isFinite(+v)?String(Math.round(+v/100)).padStart(3,"0"):"---"}
+
+function setStation(a,b,m){
+ lat=a;lon=b;localStorage.setItem("jts_lat",a);localStorage.setItem("jts_lon",b);
+ station.textContent=`${m} • ${a.toFixed(4)}N ${b>=0?"+":""}${b.toFixed(4)}E`;sys.textContent=m;
+ traffic(); if(wxOn)loadWX();
+}
+
+function updateTracks(list){
+ const t=nowSec();
+ for(const a of list){
+   if(!Number.isFinite(a.lat)||!Number.isFinite(a.lon))continue;
+   const id=String(a.hex||a.r||a.flight||Math.random()).trim();
+   let tr=tracks.get(id);
+   if(!tr){
+     tr={id,fromLat:a.lat,fromLon:a.lon,toLat:a.lat,toLon:a.lon,lat:a.lat,lon:a.lon,t0:t,t1:t+5,air:a,trail:[],glow:0,lastSeen:t};
+     tracks.set(id,tr);
+   }else{
+     tr.fromLat=tr.lat;tr.fromLon=tr.lon;tr.toLat=a.lat;tr.toLon=a.lon;tr.t0=t;tr.t1=t+5;tr.air=a;tr.lastSeen=t;
+   }
+ }
+ for(const [id,tr] of tracks)if(t-tr.lastSeen>180)tracks.delete(id);
+}
+async function traffic(){
+ if(lat===null||requestBusy)return;
+ requestBusy=true;
+ try{
+  const r=await fetch(`/api/traffic?lat=${lat}&lon=${lon}&radius=${range}`,{cache:"no-store"}),j=await r.json();
+  if(!r.ok)throw Error(j.error||r.status);
+  const rawAc=Array.isArray(j.ac)?j.ac:[];
+  const list=rawAc.filter(a=>Number.isFinite(a.lat)&&Number.isFinite(a.lon));
+  const dg=j._jts_diag||{};
+  apiDiag.textContent=`${dg.source||dg.endpoint||"?"} AC:${rawAc.length} POS:${list.length}`;
+  if(list.length>0) updateTracks(list);
+  contacts.textContent=String(list.length).padStart(2,"0");
+  link.textContent="ONLINE";lastGood=Date.now();last.textContent=new Date().toISOString().slice(11,19);sys.textContent=list.length?"NOMINAL":"ONLINE / ZERO AC";pollDelay=15000;
+ }catch(e){
+  failCount++;fails.textContent=failCount;const age=lastGood?Date.now()-lastGood:Infinity;
+  link.textContent=age<180000?"HOLD":"RECONNECTING";sys.textContent=age<180000?"DATA HOLD":"RECONNECTING";
+  pollDelay=pollDelay<=15000?30000:60000;
+ }finally{requestBusy=false;scheduleTraffic()}
+}
+function scheduleTraffic(delay=pollDelay){
+ clearTimeout(pollTimer);clearInterval(countTimer);let left=Math.round(delay/1000);nextRx.textContent=left+"s";
+ countTimer=setInterval(()=>{left=Math.max(0,left-1);nextRx.textContent=left+"s";if(!left)clearInterval(countTimer)},1000);
+ pollTimer=setTimeout(()=>traffic(),delay)
+}
+function forceTraffic(){clearTimeout(pollTimer);clearInterval(countTimer);nextRx.textContent="NOW";traffic()}
+function wxZoom(){return 7}
+async function loadWX(){
+ if(!wxOn||lat===null||wxLoading)return;
+ wxLoading=true;wxInfo.textContent="LOADING...";
+ try{
+   const z=wxZoom(),r=await fetch(`/api/wx/tile?lat=${lat}&lon=${lon}&z=${z}`,{cache:"no-store"});
+   if(!r.ok)throw Error("WX "+r.status);
+   wxFrameTime=r.headers.get("X-WX-Time");
+   const blob=await r.blob(),url=URL.createObjectURL(blob),img=new Image();
+   await new Promise((ok,no)=>{img.onload=ok;img.onerror=no;img.src=url});
+   const oc=document.createElement("canvas");oc.width=512;oc.height=512;const ox=oc.getContext("2d",{willReadFrequently:true});
+   ox.drawImage(img,0,0,512,512);URL.revokeObjectURL(url);
+   const im=ox.getImageData(0,0,512,512),p=im.data;
+   // V0.11.2 // ADAPTIVE BOARD: suppress the weak/background WX wash. Only meaningful echoes remain.
+   for(let i=0;i<p.length;i+=4){
+     const a=p[i+3], mx=Math.max(p[i],p[i+1],p[i+2]), mn=Math.min(p[i],p[i+1],p[i+2]);
+     const chroma=mx-mn;
+     // Universal-blue tiles: transparent/no echo and very weak haze are discarded.
+     if(a<18 || (mx<80 && chroma<22)){p[i+3]=0;continue}
+     const strength=Math.max(0,Math.min(1,(mx-55)/200));
+     p[i]=70;p[i+1]=255;p[i+2]=60;
+     p[i+3]=Math.round(35 + 145*Math.pow(strength,1.35));
+   }
+   ox.putImageData(im,0,0);wxCanvas=oc;
+   const dt=wxFrameTime?new Date(+wxFrameTime*1000):null;
+   wxInfo.textContent=dt?`RX ${dt.toISOString().slice(11,16)}Z`:"WX ONLINE";
+ }catch(e){wxInfo.textContent="WX ERROR";console.error(e)}
+ wxLoading=false;
+}
+function drawWX(R,d){
+ if(!wxOn||!wxCanvas||lat===null)return;
+ const z=wxZoom();
+ const earth=40075016.686;
+ // 512px coordinate image spans two conventional 256px Web-Mercator tiles.
+ const imageWidthMeters=2*earth*Math.cos(rad(lat))/Math.pow(2,z);
+ const halfNm=(imageWidthMeters/2)/1852;
+ const fullDisplay=2*R*(halfNm/range);
+ X.save();X.beginPath();X.arc(0,0,R,0,Math.PI*2);X.clip();
+ X.globalAlpha=.46;X.imageSmoothingEnabled=false;
+ X.drawImage(wxCanvas,-fullDisplay/2,-fullDisplay/2,fullDisplay,fullDisplay);
+ X.restore();
+}
+
+function crossed(prev,cur,target){if(cur>=prev)return target>=prev&&target<cur;return target>=prev||target<cur}
+function deadReckon(lat0,lon0,trackDeg,gsKt,seconds){
+ // Great-circle projection from the last ADS-B fix. Keeps contacts moving between API refreshes.
+ const Rnm=3440.065,distNm=Math.max(0,gsKt)*Math.max(0,seconds)/3600;
+ const br=rad(trackDeg),p1=rad(lat0),l1=rad(lon0),ad=distNm/Rnm;
+ const p2=Math.asin(Math.sin(p1)*Math.cos(ad)+Math.cos(p1)*Math.sin(ad)*Math.cos(br));
+ const l2=l1+Math.atan2(Math.sin(br)*Math.sin(ad)*Math.cos(p1),Math.cos(ad)-Math.sin(p1)*Math.sin(p2));
+ return [p2*180/Math.PI,((l2*180/Math.PI+540)%360)-180];
+}
+function interpolateTracks(){
+ const t=nowSec();
+ for(const tr of tracks.values()){
+   const span=Math.max(.25,tr.t1-tr.t0),raw=(t-tr.t0)/span;
+   if(raw<=1){
+     const u=Math.max(0,raw);
+     tr.lat=tr.fromLat+(tr.toLat-tr.fromLat)*u;
+     tr.lon=tr.fromLon+(tr.toLon-tr.fromLon)*u;
+   }else{
+     // The API refresh is ~15 s while interpolation lasts 5 s. Previously contacts froze for ~10 s here.
+     // Continue motion from the last real fix using ADS-B groundspeed + track until the next fix arrives.
+     const a=tr.air||{},gs=+a.gs,hdg=+a.track,age=Math.min(45,t-tr.t1);
+     if(Number.isFinite(gs)&&gs>1&&Number.isFinite(hdg)){
+       [tr.lat,tr.lon]=deadReckon(tr.toLat,tr.toLon,hdg,gs,age);
+     }else{tr.lat=tr.toLat;tr.lon=tr.toLon;}
+   }
+   if(!tr._trail||t-tr._trail>.55){tr.trail.unshift([tr.lat,tr.lon,t]);tr.trail=tr.trail.filter(p=>t-p[2]<9).slice(0,12);tr._trail=t}
+   tr.glow=Math.max(0,tr.glow-.012);
+ }
+}
+
+// --- JTS V0.9 PIXEL BOARD ENGINE ---
+const FONT5x7 = {
+' ': '.....|.....|.....|.....|.....|.....|.....',
+'!': '..#..|..#..|..#..|..#..|..#..|.....|..#..',
+'"': '.#.#.|.#.#.|.#.#.|.....|.....|.....|.....',
+'#': '.#.#.|.#.#.|#####|.#.#.|#####|.#.#.|.#.#.',
+'$': '..#..|.####|#.#..|.###.|..#.#|####.|..#..',
+'%': '##...|##..#|...#.|..#..|.#...|#..##|...##',
+'&': '.##..|#..#.|#.#..|.#...|#.#.#|#..#.|.##.#',
+"'": '.##..|..#..|.#...|.....|.....|.....|.....',
+'(': '...#.|..#..|.#...|.#...|.#...|..#..|...#.',
+')': '.#...|..#..|...#.|...#.|...#.|..#..|.#...',
+'*': '.....|..#..|#.#.#|.###.|#.#.#|..#..|.....',
+'+': '.....|..#..|..#..|#####|..#..|..#..|.....',
+',': '.....|.....|.....|.....|.##..|..#..|.#...',
+'-': '.....|.....|.....|#####|.....|.....|.....',
+'.': '.....|.....|.....|.....|.....|.##..|.##..',
+'/': '.....|....#|...#.|..#..|.#...|#....|.....',
+'0': '.###.|#...#|#..##|#.#.#|##..#|#...#|.###.',
+'1': '..#..|.##..|..#..|..#..|..#..|..#..|.###.',
+'2': '.###.|#...#|....#|...#.|..#..|.#...|#####',
+'3': '#####|...#.|..#..|...#.|....#|#...#|.###.',
+'4': '...#.|..##.|.#.#.|#..#.|#####|...#.|...#.',
+'5': '#####|#....|####.|....#|....#|#...#|.###.',
+'6': '..##.|.#...|#....|####.|#...#|#...#|.###.',
+'7': '#####|....#|...#.|..#..|.#...|.#...|.#...',
+'8': '.###.|#...#|#...#|.###.|#...#|#...#|.###.',
+'9': '.###.|#...#|#...#|.####|....#|...#.|.##..',
+':': '.....|.##..|.##..|.....|.##..|.##..|.....',
+';': '.....|.##..|.##..|.....|.##..|..#..|.#...',
+'<': '...#.|..#..|.#...|#....|.#...|..#..|...#.',
+'=': '.....|.....|#####|.....|#####|.....|.....',
+'>': '.#...|..#..|...#.|....#|...#.|..#..|.#...',
+'?': '.###.|#...#|....#|...#.|..#..|.....|..#..',
+'@': '.###.|#...#|....#|.##.#|#.#.#|#.#.#|.###.',
+'A': '.###.|#...#|#...#|#####|#...#|#...#|#...#',
+'B': '####.|#...#|#...#|####.|#...#|#...#|####.',
+'C': '.###.|#...#|#....|#....|#....|#...#|.###.',
+'D': '###..|#..#.|#...#|#...#|#...#|#..#.|###..',
+'E': '#####|#....|#....|####.|#....|#....|#####',
+'F': '#####|#....|#....|####.|#....|#....|#....',
+'G': '.###.|#...#|#....|#.###|#...#|#...#|.####',
+'H': '#...#|#...#|#...#|#####|#...#|#...#|#...#',
+'I': '.###.|..#..|..#..|..#..|..#..|..#..|.###.',
+'J': '..###|...#.|...#.|...#.|...#.|#..#.|.##..',
+'K': '#...#|#..#.|#.#..|##...|#.#..|#..#.|#...#',
+'L': '#....|#....|#....|#....|#....|#....|#####',
+'M': '#...#|##.##|#.#.#|#.#.#|#...#|#...#|#...#',
+'N': '#...#|#...#|##..#|#.#.#|#..##|#...#|#...#',
+'O': '.###.|#...#|#...#|#...#|#...#|#...#|.###.',
+'P': '####.|#...#|#...#|####.|#....|#....|#....',
+'Q': '.###.|#...#|#...#|#...#|#.#.#|#..#.|.##.#',
+'R': '####.|#...#|#...#|####.|#.#..|#..#.|#...#',
+'S': '.####|#....|#....|.###.|....#|....#|####.',
+'T': '#####|..#..|..#..|..#..|..#..|..#..|..#..',
+'U': '#...#|#...#|#...#|#...#|#...#|#...#|.###.',
+'V': '#...#|#...#|#...#|#...#|#...#|.#.#.|..#..',
+'W': '#...#|#...#|#...#|#.#.#|#.#.#|#.#.#|.#.#.',
+'X': '#...#|#...#|.#.#.|..#..|.#.#.|#...#|#...#',
+'Y': '#...#|#...#|#...#|.#.#.|..#..|..#..|..#..',
+'Z': '#####|....#|...#.|..#..|.#...|#....|#####',
+'[': '.###.|.#...|.#...|.#...|.#...|.#...|.###.',
+'\\': '.....|#....|.#...|..#..|...#.|....#|.....',
+']': '.###.|...#.|...#.|...#.|...#.|...#.|.###.',
+'^': '..#..|.#.#.|#...#|.....|.....|.....|.....',
+'_': '.....|.....|.....|.....|.....|.....|#####',
+'`': '.#...|..#..|...#.|.....|.....|.....|.....',
+'a': '.....|.....|.###.|....#|.####|#...#|.####',
+'b': '#....|#....|#.##.|##..#|#...#|#...#|####.',
+'c': '.....|.....|.###.|#....|#....|#...#|.###.',
+'d': '....#|....#|.##.#|#..##|#...#|#...#|.####',
+'e': '.....|.....|.###.|#...#|#####|#....|.###.',
+'f': '..##.|.#..#|.#...|###..|.#...|.#...|.#...',
+'g': '.....|.....|.####|#...#|.####|....#|.###.',
+'h': '#....|#....|#.##.|##..#|#...#|#...#|#...#',
+'i': '..#..|.....|.##..|..#..|..#..|..#..|.###.',
+'j': '...#.|.....|..##.|...#.|...#.|#..#.|.##..',
+'k': '#....|#....|#..#.|#.#..|##...|#.#..|#..#.',
+'l': '.##..|..#..|..#..|..#..|..#..|..#..|.###.',
+'m': '.....|.....|##.#.|#.#.#|#.#.#|#...#|#...#',
+'n': '.....|.....|#.##.|##..#|#...#|#...#|#...#',
+'o': '.....|.....|.###.|#...#|#...#|#...#|.###.',
+'p': '.....|.....|####.|#...#|####.|#....|#....',
+'q': '.....|.....|.####|#...#|.####|....#|....#',
+'r': '.....|.....|#.##.|##..#|#....|#....|#....',
+'s': '.....|.....|.###.|#....|.###.|....#|####.',
+'t': '.#...|.#...|###..|.#...|.#...|.#..#|..##.',
+'u': '.....|.....|#...#|#...#|#...#|#..##|.##.#',
+'v': '.....|.....|#...#|#...#|#...#|.#.#.|..#..',
+'w': '.....|.....|#...#|#...#|#.#.#|#.#.#|.#.#.',
+'x': '.....|.....|#...#|.#.#.|..#..|.#.#.|#...#',
+'y': '.....|.....|#...#|#...#|.####|....#|.###.',
+'z': '.....|.....|#####|...#.|..#..|.#...|#####',
+'{': '...#.|..#..|..#..|.#...|..#..|..#..|...#.',
+'|': '..#..|..#..|..#..|..#..|..#..|..#..|..#..',
+'}': '.#...|..#..|..#..|...#.|..#..|..#..|.#...',
+'~': '.....|.....|.#..#|#.#.#|#..#.|.....|.....',
+'°': '.##..|#..#.|.##..|.....|.....|.....|.....',
+'→': '.....|..#..|...#.|#####|...#.|..#..|.....',
+'←': '.....|..#..|.#...|#####|.#...|..#..|.....',
+'↑': '..#..|.###.|#.#.#|..#..|..#..|..#..|..#..',
+'↓': '..#..|..#..|..#..|..#..|#.#.#|.###.|..#..',
+};
+const JTS_GLYPHS={}; for(const ch in FONT5x7) JTS_GLYPHS[ch]=FONT5x7[ch].split('|');
+function pxTextWidth(text,scale=1){return Math.max(0,String(text).length*6-1)*scale}
+function pxText(text,x,y,scale=1,align="left",alpha=1,color=G){
+  text=String(text??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase();
+  let ox=x;if(align==="center")ox-=pxTextWidth(text,scale)/2;if(align==="right")ox-=pxTextWidth(text,scale);
+  X.save();X.globalAlpha=alpha;X.fillStyle=color;X.shadowColor=color;X.shadowBlur=(ledGlow/100)*6*scale;
+  for(const ch of text){const rows=JTS_GLYPHS[ch]||JTS_GLYPHS['?'];for(let ry=0;ry<7;ry++)for(let rx=0;rx<5;rx++)if(rows[ry][rx]==='#'){const xx=ox+rx*scale,yy=y+ry*scale,sz=Math.max(1,scale*.72);X.beginPath();if(ledShape==='square')X.rect(xx,yy,sz,sz);else X.arc(xx+sz/2,yy+sz/2,sz*.48,0,Math.PI*2);X.fill();}ox+=6*scale;}
+  X.restore();
+}
+
+/* ============================================================
+   FLIGHTBOARD LED GRAFT
+   The logical raster is the same architecture as FlightBoard:
+   one logical pixel = one physical LED. Geometry is composed on
+   a low-resolution matrix then expanded as round/square lamps.
+   ============================================================ */
+const FB_FONT3x5={
+'0':'###|#.#|#.#|#.#|###','1':'.#.|##.|.#.|.#.|###','2':'###|..#|###|#..|###','3':'###|..#|###|..#|###',
+'4':'#.#|#.#|###|..#|..#','5':'###|#..|###|..#|###','6':'###|#..|###|#.#|###','7':'###|..#|..#|..#|..#',
+'8':'###|#.#|###|#.#|###','9':'###|#.#|###|..#|###','A':'.#.|#.#|###|#.#|#.#','B':'##.|#.#|##.|#.#|##.',
+'C':'###|#..|#..|#..|###','D':'##.|#.#|#.#|#.#|##.','E':'###|#..|###|#..|###','F':'###|#..|###|#..|#..',
+'G':'###|#..|#.#|#.#|###','H':'#.#|#.#|###|#.#|#.#','I':'###|.#.|.#.|.#.|###','J':'..#|..#|..#|#.#|###',
+'K':'#.#|#.#|##.|#.#|#.#','L':'#..|#..|#..|#..|###','M':'#.#|###|###|#.#|#.#','N':'###|#.#|#.#|#.#|#.#',
+'O':'###|#.#|#.#|#.#|###','P':'###|#.#|###|#..|#..','Q':'###|#.#|#.#|###|..#','R':'###|#.#|##.|#.#|#.#',
+'S':'###|#..|###|..#|###','T':'###|.#.|.#.|.#.|.#.','U':'#.#|#.#|#.#|#.#|###','V':'#.#|#.#|#.#|#.#|.#.',
+'W':'#.#|#.#|###|###|#.#','X':'#.#|#.#|.#.|#.#|#.#','Y':'#.#|#.#|.#.|.#.|.#.','Z':'###|..#|.#.|#..|###',
+'-':'...|...|###|...|...','#':'#.#|###|#.#|###|#.#',' ':'...|...|...|...|...','/':'..#|..#|.#.|#..|#..',
+'.':'...|...|...|...|.#.',':':'...|.#.|...|.#.|...'
+};
+const FB_G3={};for(const ch in FB_FONT3x5)FB_G3[ch]=FB_FONT3x5[ch].split('|');
+function fbGlyph(ch){let rows=JTS_GLYPHS[ch];if(rows)return rows;let b=String(ch).normalize('NFD').replace(/[\u0300-\u036f]/g,'');return JTS_GLYPHS[b]||JTS_GLYPHS['?']||JTS_GLYPHS[' '];}
+function fbText5(g,text,x,y,color){g.fillStyle=color;let xx=x;for(const ch of String(text)){const rows=fbGlyph(ch);for(let r=0;r<7;r++)for(let c=0;c<5;c++)if(rows[r]&&rows[r][c]==='#')g.fillRect(xx+c,y+r,1,1);xx+=6;}return xx-x-1;}
+function fbMeasure5(text){return [...String(text)].length*6-1}
+function fbText3(g,text,x,y,color){g.fillStyle=color;let xx=x;for(const ch of String(text).toUpperCase()){const rows=FB_G3[ch]||FB_G3[' '];for(let r=0;r<5;r++)for(let c=0;c<3;c++)if(rows[r][c]==='#')g.fillRect(xx+c,y+r,1,1);xx+=4;}return xx-x-1;}
+function fbMeasure3(text){return String(text).length*4-1}
+
+const fbMat=document.createElement('canvas'),fbM=fbMat.getContext('2d',{willReadFrequently:true});
+let fbOffGrid=null,fbDims='';
+function fbResize(W,H,d){const p=Math.max(4,Math.round(ledPitch*d));const mw=Math.max(16,Math.floor(W/p)),mh=Math.max(8,Math.floor(H/p));const sig=`${W}x${H}@${p}:${ledShape}:${ledOffColor}`;if(fbDims!==sig){fbDims=sig;fbMat.width=mw;fbMat.height=mh;fbOffGrid=null;}return {p,mw,mh};}
+function fbPlane(g,cx,cy,size,angleDeg,color){g.save();g.translate(cx,cy);g.rotate((angleDeg-90)*Math.PI/180);g.scale(size/10,size/10);g.fillStyle=color;g.beginPath();g.moveTo(9,0);g.lineTo(3,-1.2);g.lineTo(-1,-9);g.lineTo(-3.5,-9);g.lineTo(-2,-1.3);g.lineTo(-6,-1);g.lineTo(-8,-4);g.lineTo(-9.5,-4);g.lineTo(-8.5,0);g.lineTo(-9.5,4);g.lineTo(-8,4);g.lineTo(-6,1);g.lineTo(-2,1.3);g.lineTo(-3.5,9);g.lineTo(-1,9);g.lineTo(3,1.2);g.closePath();g.fill();g.restore();}
+function fbRows(){let a=[];if(lat===null)return a;for(const tr of tracks.values()){const[nm,b]=nav(lat,lon,tr.lat,tr.lon);if(nm<=range)a.push({tr,nm,b,air:tr.air||{}})}a.sort((x,y)=>x.nm-y.nm);return a;}
+function fbRenderLeds(W,H,d){const {p,mw:MW,mh:MH}=fbResize(W,H,d),round=ledShape!=='square';const ox=(W-MW*p)/2,oy=(H-MH*p)/2,r=p*.36;X.fillStyle=ledBgColor;X.fillRect(0,0,W,H);if(!fbOffGrid){fbOffGrid=document.createElement('canvas');fbOffGrid.width=W;fbOffGrid.height=H;const g=fbOffGrid.getContext('2d');g.fillStyle=ledOffColor;for(let y=0;y<MH;y++)for(let x=0;x<MW;x++){const xx=ox+x*p+p/2,yy=oy+y*p+p/2;if(round){g.beginPath();g.arc(xx,yy,r,0,Math.PI*2);g.fill()}else g.fillRect(xx-r,yy-r,r*2,r*2)}}X.drawImage(fbOffGrid,0,0);const img=fbM.getImageData(0,0,MW,MH).data;for(let pass=0;pass<2;pass++){for(let y=0;y<MH;y++)for(let x=0;x<MW;x++){const i=(y*MW+x)*4,a=img[i+3];if(a<90)continue;const k=Math.min(1,a/255+.15),xx=ox+x*p+p/2,yy=oy+y*p+p/2;if(pass===0&&ledGlow<=0)continue;const rr=pass===0?r*1.9:r;X.fillStyle=`rgba(${img[i]},${img[i+1]},${img[i+2]},${pass===0?(ledGlow/100)*k:k})`;if(round){X.beginPath();X.arc(xx,yy,rr,0,Math.PI*2);X.fill()}else X.fillRect(xx-rr,yy-rr,rr*2,rr*2)}}}
+
+function drawLedRadar(W,H,d){
+  const {mw:Wm,mh:Hm}=fbResize(W,H,d);fbM.clearRect(0,0,Wm,Hm);const col=activeColor('alt'),cx=Math.floor(Wm/2),cy=Math.floor(Hm/2),R=Math.max(10,Math.floor(Math.min(Wm,Hm)/2)-2),rows=fbRows();
+  // FlightBoard sweep: broad filled sector + bright needle.
+  const now=performance.now(),ang=(now%4000)/4000*2*Math.PI;fbM.fillStyle=col;fbM.globalAlpha=.42;fbM.beginPath();fbM.moveTo(cx,cy);fbM.arc(cx,cy,R,ang-Math.PI/2-.85,ang-Math.PI/2);fbM.closePath();fbM.fill();fbM.globalAlpha=1;fbM.strokeStyle=col;fbM.lineWidth=1;fbM.beginPath();fbM.moveTo(cx,cy);fbM.lineTo(cx+R*Math.sin(ang),cy-R*Math.cos(ang));fbM.stroke();
+  // Exact FlightBoard visual grammar: 3 rings + cross + cardinal letters.
+  for(const f of [1/3,2/3,1]){fbM.globalAlpha=f===1?.85:.45;fbM.beginPath();fbM.arc(cx,cy,R*f,0,Math.PI*2);fbM.stroke()}fbM.globalAlpha=.4;fbM.beginPath();fbM.moveTo(cx-R,cy);fbM.lineTo(cx+R,cy);fbM.moveTo(cx,cy-R);fbM.lineTo(cx,cy+R);fbM.stroke();fbM.globalAlpha=1;
+  fbText5(fbM,'N',cx-2,cy-R+2,col);fbText5(fbM,'S',cx-2,cy+R-9,col);fbText5(fbM,'W',cx-R+3,cy-3,col);fbText5(fbM,'E',cx+R-8,cy-3,col);fbText5(fbM,`${range}NM`,1,1,col);fbText5(fbM,`${rows.length} CONTACTS`,1,9,col);
+  const polar=(nm,brg)=>{const rr=Math.min(1,nm/range)*R,a=brg*Math.PI/180;return[cx+rr*Math.sin(a),cy-rr*Math.cos(a)]};
+  // Trails are deliberately tiny, as in FlightBoard.
+  for(const o of rows){const tr=o.tr.trail;if(!tr||tr.length<2)continue;tr.slice(0,-1).forEach((pt,j)=>{const[nm,b]=nav(lat,lon,pt[0],pt[1]);if(nm>range)return;const[tx,ty]=polar(nm,b);fbM.globalAlpha=.35+.45*(j/Math.max(1,tr.length-1));fbM.fillStyle=col;fbM.fillRect(Math.round(tx),Math.round(ty),1,1)});fbM.globalAlpha=1}
+  if(rows.length&&fbSelected>=rows.length)fbSelected=0;
+  rows.forEach((o,i)=>{const f=o.air,[x,y]=polar(o.nm,o.b),tag=ident(f).slice(0,10),c=activeColor('call');if(i===fbSelected){fbM.globalAlpha=.75+.25*Math.sin(now/200);fbPlane(fbM,x,y,5,+f.track||0,c);fbM.globalAlpha=1}else fbPlane(fbM,x,y,3,+f.track||0,c);const tw=fbMeasure3(tag);let tx=x+5;if(tx+tw>Wm-1)tx=x-5-tw;let ty=y-6;if(ty<1)ty=y+4;fbM.globalAlpha=.82;fbText3(fbM,tag,Math.round(tx),Math.round(ty),c);fbM.globalAlpha=1});
+  const sel=rows[fbSelected];if(sel){const f=sel.air,l1=ident(f),l2=`${sel.nm.toFixed(1)}NM ${altitude(f)}FT`,c=activeColor('call');fbText5(fbM,l1,1,Hm-17,c);fbText5(fbM,l2,1,Hm-9,activeColor('alt'))}
+  fbRenderLeds(W,H,d);
+}
+
+function drawPixelBoard(W,H,d){
+  const {mw:MW,mh:MH}=fbResize(W,H,d);fbM.clearRect(0,0,MW,MH);const rows=fbRows();
+  if(!rows.length){const msg='NO CONTACTS';fbText5(fbM,msg,Math.max(2,Math.floor((MW-fbMeasure5(msg))/2)),Math.max(2,Math.floor(MH/2)-4),activeColor('call'));fbRenderLeds(W,H,d);return}
+
+  // V1.0 FINAL — Stacked Flight Board: one datum per line, no table columns.
+  // Cards flow top-to-bottom, then into the next vertical lane only when necessary.
+  const marginX=5, top=5, bottom=5, laneGap=8;
+  const cardH=61; // logical LED rows: enough for 10 stacked information lines
+  const perLane=Math.max(1,Math.floor((MH-top-bottom)/cardH));
+  const laneCount=Math.max(1,Math.min(3,Math.floor((MW-marginX*2+laneGap)/(82+laneGap))));
+  const perPage=perLane*laneCount, pages=Math.ceil(rows.length/perPage), page=Math.floor(performance.now()/10000)%pages;
+  const shown=rows.slice(page*perPage,page*perPage+perPage);
+  const laneW=Math.floor((MW-marginX*2-laneGap*(laneCount-1))/laneCount);
+
+  shown.forEach((o,i)=>{
+    const f=o.air||{}, lane=Math.floor(i/perLane), slot=i%perLane;
+    const x=marginX+lane*(laneW+laneGap), y=top+slot*cardH;
+    const call=ident(f).slice(0,13);
+    const airline=(f.airline||f.operator||'').toString().slice(0,20);
+    const origin=(f.origin||f.from||'').toString().slice(0,15);
+    const destination=(f.destination||f.to||'').toString().slice(0,15);
+    const route=(f.route||f.flight_route||(origin||destination?`${origin||'---'}-${destination||'---'}`:'')).toString().slice(0,20);
+    const type=(f.t||f.type||f.aircraft_type||'').toString().slice(0,12);
+    const reg=(f.r||f.reg||f.registration||'').toString().slice(0,12);
+    const alt=altitude(f), spd=Number.isFinite(+f.gs)?Math.round(+f.gs):'---', hdg=Number.isFinite(+f.track)?String(Math.round(+f.track)).padStart(3,'0'):'---';
+
+    fbPlane(fbM,x+3,y+5,4,+f.track||0,activeColor('route'));
+    fbText5(fbM,call,x+9,y,activeColor('call'));
+    let yy=y+9;
+    if(airline){fbText3(fbM,airline,x+9,yy,activeColor('call'));yy+=6}
+    if(route){fbText5(fbM,route,x+9,yy,activeColor('route'));yy+=9}
+    if(origin){fbText3(fbM,`DE: ${origin}`,x+9,yy,activeColor('call'));yy+=6}
+    if(destination){fbText3(fbM,`VERS: ${destination}`,x+9,yy,activeColor('call'));yy+=6}
+    const ac=[type,reg].filter(Boolean).join(' ');if(ac){fbText3(fbM,ac,x+9,yy,activeColor('type'));yy+=6}
+    fbText5(fbM,`ALT: ${alt}FT`,x+9,yy,activeColor('alt'));yy+=9;
+    fbText5(fbM,`VIT: ${spd}KT`,x+9,yy,activeColor('speed'));yy+=9;
+    fbText3(fbM,`HDG: ${hdg}  DIST: ${o.nm.toFixed(1)}NM`,x+9,yy,activeColor('hdg'));
+
+    // discreet dotted separator; no boxed/table look
+    const sy=Math.min(MH-1,y+cardH-3);fbM.fillStyle=activeColor('alt');fbM.globalAlpha=.18;
+    for(let xx=x+2;xx<Math.min(MW-2,x+laneW-2);xx+=3)fbM.fillRect(xx,sy,1,1);fbM.globalAlpha=1;
+  });
+  if(pages>1)fbText3(fbM,`PAGE ${page+1}/${pages}`,MW-fbMeasure3(`PAGE ${page+1}/${pages}`)-4,MH-6,activeColor('type'));
+  fbRenderLeds(W,H,d);
+}
+function applyDisplayMode(mode){displayMode=['radar','ledradar','board'].includes(mode)?mode:'radar';localStorage.setItem('jts_display_mode',displayMode);radarMode.classList.toggle('active',displayMode==='radar');ledRadarMode.classList.toggle('active',displayMode==='ledradar');boardMode.classList.toggle('active',displayMode==='board');displayInfo.textContent=displayMode==='radar'?'CLASSIC SCOPE / WX':displayMode==='ledradar'?'FLIGHTBOARD LED RADAR':'FLIGHTBOARD MULTI BOARD';}
+
+function draw(){
+ interpolateTracks();
+ if(performance.now()-fbLastCycle>6000){fbSelected++;fbLastCycle=performance.now();}
+ const W=C.width,H=C.height,cx=W/2,cy=H/2,R=Math.min(W,H)*.475,d=devicePixelRatio||1;
+ if(displayMode==='board'){drawPixelBoard(W,H,d);requestAnimationFrame(draw);return;} if(displayMode==='ledradar'){sweep=(sweep+.0030)%1;drawLedRadar(W,H,d);requestAnimationFrame(draw);return;}
+ X.clearRect(0,0,W,H);X.save();X.translate(cx,cy);
+
+ // WX sits beneath the radar symbology.
+ drawWX(R,d);
+
+ X.strokeStyle=D;X.fillStyle=G;X.lineWidth=Math.max(1,d);
+ for(let i=1;i<=4;i++){X.beginPath();X.arc(0,0,R*i/4,0,Math.PI*2);X.stroke();X.font=`${9*d}px Courier New`;X.textAlign="center";X.fillText((range*i/4).toFixed(range<10?1:0),0,-R*i/4+12*d)}
+ for(let z=0;z<360;z+=5){let a=rad(z-90),inner=R*(z%30===0?.935:z%10===0?.958:.978);X.beginPath();X.moveTo(Math.cos(a)*inner,Math.sin(a)*inner);X.lineTo(Math.cos(a)*R,Math.sin(a)*R);X.stroke()}
+ for(let z=0;z<360;z+=30){let a=rad(z-90);X.beginPath();X.moveTo(Math.cos(a)*R*.12,Math.sin(a)*R*.12);X.lineTo(Math.cos(a)*R*.92,Math.sin(a)*R*.92);X.stroke();X.font=`${10*d}px Courier New`;X.textAlign="center";X.fillText(String(z).padStart(3,"0"),Math.cos(a)*R*.895,Math.sin(a)*R*.895+3*d)}
+
+ prevSweep=sweep*360;sweep=(sweep+.0030)%1;const sweepDeg=sweep*360,sa=rad(sweepDeg-90);
+ let gr=X.createRadialGradient(0,0,0,0,0,R);gr.addColorStop(0,"rgba(114,255,85,.015)");gr.addColorStop(.75,"rgba(114,255,85,.10)");gr.addColorStop(1,"rgba(114,255,85,.34)");
+ X.fillStyle=gr;X.beginPath();X.moveTo(0,0);X.arc(0,0,R,sa-.23,sa);X.closePath();X.fill();X.strokeStyle=G;X.beginPath();X.moveTo(0,0);X.lineTo(Math.cos(sa)*R,Math.sin(sa)*R);X.stroke();
+ X.beginPath();X.arc(0,0,7*d,0,Math.PI*2);X.moveTo(-13*d,0);X.lineTo(13*d,0);X.moveTo(0,-13*d);X.lineTo(0,13*d);X.stroke();
+
+ if(lat!==null){
+   for(const tr of tracks.values()){
+     const[nm,b]=nav(lat,lon,tr.lat,tr.lon);if(nm>range)continue;if(crossed(prevSweep,sweepDeg,b))tr.glow=1;
+     for(let i=0;i<tr.trail.length;i++){const p=tr.trail[i],[tn,tb]=nav(lat,lon,p[0],p[1]);if(tn>range)continue;const rr=R*tn/range,ang=rad(tb-90),px=Math.cos(ang)*rr,py=Math.sin(ang)*rr,age=nowSec()-p[2],alpha=Math.max(0,.20*(1-age/9));X.fillStyle=`rgba(114,255,85,${alpha})`;X.beginPath();X.arc(px,py,Math.max(1,1.6*d),0,Math.PI*2);X.fill()}
+     const rr=R*nm/range,ang=rad(b-90),px=Math.cos(ang)*rr,py=Math.sin(ang)*rr,alpha=.38+.62*tr.glow;
+     X.fillStyle=`rgba(114,255,85,${alpha})`;X.shadowColor=G;X.shadowBlur=(4+11*tr.glow)*d;X.beginPath();X.arc(px,py,(2.7+2*tr.glow)*d,0,Math.PI*2);X.fill();X.shadowBlur=0;
+     const a=tr.air;if(Number.isFinite(+a.track)){const h=rad(+a.track-90);X.strokeStyle=`rgba(114,255,85,${.4+.5*tr.glow})`;X.beginPath();X.moveTo(px,py);X.lineTo(px+Math.cos(h)*28*d,py+Math.sin(h)*28*d);X.stroke()}
+     // V0.11.2 // ADAPTIVE BOARD: labels doubled in size.
+     X.textAlign="left";X.fillStyle=`rgba(114,255,85,${.72+.28*tr.glow})`;X.shadowColor="#000";X.shadowBlur=3*d;X.font=`bold ${18*d}px Courier New`;X.fillText(ident(a),px+10*d,py-8*d);
+     const hdg=Number.isFinite(+a.track)?String(Math.round(+a.track)).padStart(3,"0"):"---";
+     X.font=`${16*d}px Courier New`;X.fillText(`${altitude(a)}  ${hdg}  ${nm.toFixed(1)}NM`,px+10*d,py+11*d);X.shadowBlur=0;
+   }
+ }
+ X.restore();requestAnimationFrame(draw);
+}
+
+function tryGPS(){
+ sys.textContent="GPS SEARCH";
+ navigator.geolocation.getCurrentPosition(
+  p=>{markPreset("");setTZ(Intl.DateTimeFormat().resolvedOptions().timeZone||"UTC");setStation(p.coords.latitude,p.coords.longitude,"GPS")},
+  ()=>{const a=+localStorage.getItem("jts_lat"),b=+localStorage.getItem("jts_lon");if(Number.isFinite(a)&&Number.isFinite(b)&&(a||b)){setTZ(Intl.DateTimeFormat().resolvedOptions().timeZone||"UTC");setStation(a,b,"MEM");}else{station.textContent="POSITION REQUIRED";sys.textContent="NO POSITION";setup.classList.add("open")}},
+  {enableHighAccuracy:true,timeout:10000,maximumAge:30000}
+ );
+}
+
+setInterval(updateClocks,250);updateClocks();
+
+setInterval(()=>{if(wxOn)loadWX()},300000);
+
+document.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>{
+ range=+b.dataset.r;rangev.textContent=range;document.querySelectorAll("[data-r]").forEach(q=>q.classList.toggle("on",q===b));traffic();if(wxOn)loadWX()
+});
+document.querySelectorAll("[data-airport]").forEach(b=>b.onclick=()=>useAirport(b.dataset.airport));
+homeGps.onclick=()=>tryGPS();
+refreshData.onclick=forceTraffic;
+wxBtn.onclick=()=>{wxOn=!wxOn;wxBtn.textContent=wxOn?"WX ON":"WX OFF";wxBtn.classList.toggle("on",wxOn);if(wxOn)loadWX();else wxInfo.textContent="NO LAYER"};
+radarMode.onclick=()=>applyDisplayMode('radar');
+ledRadarMode.onclick=()=>applyDisplayMode('ledradar');
+boardMode.onclick=()=>applyDisplayMode('board');
+const ledPitchCtl=document.getElementById('ledPitch'),ledShapeCtl=document.getElementById('ledShape'),ledGlowCtl=document.getElementById('ledGlow'),ledBgCtl=document.getElementById('ledBg'),ledOffCtl=document.getElementById('ledOff');
+ledPitchCtl.value=String(ledPitch); pitchLabel.textContent=String(ledPitch);
+ledShapeCtl.value=ledShape; ledGlowCtl.value=String(ledGlow); glowLabel.textContent=String(ledGlow);
+ledBgCtl.value=ledBgColor;ledOffCtl.value=ledOffColor;
+ledPitchCtl.oninput=()=>{ledPitch=+ledPitchCtl.value;pitchLabel.textContent=String(ledPitch);localStorage.setItem('jts_led_pitch',ledPitch)};
+ledShapeCtl.onchange=()=>{ledShape=ledShapeCtl.value;localStorage.setItem('jts_led_shape',ledShape)};
+ledGlowCtl.oninput=()=>{ledGlow=+ledGlowCtl.value;glowLabel.textContent=String(ledGlow);localStorage.setItem('jts_led_glow',ledGlow)};
+ledBgCtl.oninput=()=>{ledBgColor=ledBgCtl.value;localStorage.setItem('jts_led_bg',ledBgColor);fbOffGrid=null};
+ledOffCtl.oninput=()=>{ledOffColor=ledOffCtl.value;localStorage.setItem('jts_led_off',ledOffColor);fbOffGrid=null};
+document.addEventListener('keydown',e=>{if((e.key==='r'||e.key==='R')&&!/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName))applyDisplayMode(displayMode==='radar'?'ledradar':displayMode==='ledradar'?'board':'radar')});
+setupBtn.onclick=()=>setup.classList.toggle("open");
+fixed.onclick=()=>{let a=parseFloat(ilat.value.replace(",",".")),b=parseFloat(ilon.value.replace(",","."));if(Number.isFinite(a)&&Number.isFinite(b)&&Math.abs(a)<=90&&Math.abs(b)<=180){markPreset("");setTZ(Intl.DateTimeFormat().resolvedOptions().timeZone||"UTC");setStation(a,b,"FIXED");setup.classList.remove("open")}};
+gps.onclick=tryGPS;
+let sa=localStorage.getItem("jts_lat"),so=localStorage.getItem("jts_lon");if(sa)ilat.value=sa;if(so)ilon.value=so;
+setTZ(Intl.DateTimeFormat().resolvedOptions().timeZone||"UTC");
+colorPreset.value=presetMode; colCall.value=dataColors.call;colRoute.value=dataColors.route;colType.value=dataColors.type;colAlt.value=dataColors.alt;colSpeed.value=dataColors.speed;colHdg.value=dataColors.hdg;
+colorPreset.onchange=()=>{presetMode=colorPreset.value;localStorage.setItem('jts_color_preset',colorPreset.value)};
+[['colCall','call'],['colRoute','route'],['colType','type'],['colAlt','alt'],['colSpeed','speed'],['colHdg','hdg']].forEach(([id,k])=>document.getElementById(id).oninput=e=>{dataColors[k]=e.target.value;localStorage.setItem('jts_data_colors',JSON.stringify(dataColors));presetMode='multi';colorPreset.value='multi';localStorage.setItem('jts_color_preset','multi')});
+applyDisplayMode(displayMode);
+tryGPS();
+draw();
+</script>
+
+<script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));}</script>
+</body></html>
