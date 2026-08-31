@@ -5,40 +5,16 @@
 <meta name="theme-color" content="#000700">
 <title>JOE'S TRAFFIC SCOPE // JTS-01</title>
 <style>
-:root{--g:#72ff55;--d:#1b661b;--bg:#000700}
-*{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;background:var(--bg);color:var(--g);font-family:"Courier New",monospace;overflow:hidden}
-body:before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at center,transparent 55%,rgba(0,0,0,.32) 100%);z-index:19}
-body:after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.17) 0 1px,transparent 1px 3px);z-index:20}
-#app{width:100vw;height:100dvh;display:grid;grid-template-columns:minmax(0,1fr) clamp(245px,23vw,350px);gap:8px;padding:8px}
-.scope,.panel{border:1px solid var(--d);box-shadow:inset 0 0 24px rgba(25,130,25,.18)}
-.scope{min-width:0;min-height:0}.panel{padding:10px;display:flex;flex-direction:column;gap:8px;overflow:auto}
-canvas{display:block;width:100%;height:100%}
-h1{font-size:clamp(14px,1.7vw,23px);margin:1px;text-align:center;text-shadow:0 0 8px var(--g)}
-.sub{text-align:center;font-size:10px;border-bottom:1px solid var(--d);padding-bottom:8px}
-.b{border:1px solid var(--d);padding:8px}.k{font-size:10px;color:#4acb3d}.v{font-size:clamp(15px,2vw,23px)}
-.ranges{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:5px}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:4px}.timegrid{display:grid;grid-template-columns:1fr 1fr;gap:4px}.presets{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:5px}.presets button.active{border-color:var(--g);box-shadow:inset 0 0 12px #267f20,0 0 7px rgba(114,255,85,.2)}
-button,input{font:inherit;color:var(--g);background:#001000;border:1px solid var(--d);padding:7px}
-button.on{border-color:var(--g);box-shadow:inset 0 0 12px #267f20,0 0 7px rgba(114,255,85,.2)}
-.sm{font-size:10px;line-height:1.55}#status{margin-top:auto}
-.setup{display:none}.setup.open{display:block}.setupgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:4px;padding-right:2px}.setupgrid input{width:75%;min-width:0}.setupgrid input:nth-child(2){justify-self:end}.setupgrid button{grid-column:1/-1}
-.credit{font-size:8px;opacity:.72;text-align:center}
-.displaymode{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:5px}
-.displaymode.triple{grid-template-columns:repeat(3,1fr)}
-.displaymode button{padding:7px 3px;font-size:10px}
-.displaymode button.active{border-color:var(--g);box-shadow:inset 0 0 12px #267f20,0 0 7px rgba(114,255,85,.2)}
-.pixelgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;align-items:center}.pixelgrid label{font-size:10px;color:#4acb3d}.pixelgrid input[type=range]{width:100%;padding:0}.pixelgrid select{font:inherit;color:var(--g);background:#001000;border:1px solid var(--d);padding:6px}
-
-@media(orientation:portrait){
- html,body{overflow:auto}
- #app{height:auto;min-height:100dvh;grid-template-columns:1fr;grid-template-rows:min(98vw,62dvh) auto}
- .panel{display:grid;grid-template-columns:1fr 1fr;overflow:visible}
- .head,.rangebox,.setup,.presetbox,.credit,.timegrid{grid-column:1/-1}#status{margin:0}
-}
-@media(max-width:520px) and (orientation:portrait){
- #app{padding:4px;gap:4px}.panel{padding:5px;gap:5px}.b{padding:5px}.sm,.k,.sub{font-size:9px}
-}
+:root{--g:#72ff55;--d:#1b661b;--bg:#000700;--red:#ff3b30}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:var(--bg);color:var(--g);font-family:"Courier New",monospace;overflow:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at center,transparent 55%,rgba(0,0,0,.32) 100%);z-index:19}body:after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.17) 0 1px,transparent 1px 3px);z-index:20}
+#app{width:100vw;height:100dvh;display:grid;grid-template-columns:minmax(0,1fr) clamp(280px,24vw,390px);gap:8px;padding:8px}.scope,.panel{border:1px solid var(--d);box-shadow:inset 0 0 24px rgba(25,130,25,.18)}.scope{min-width:0;min-height:0}.panel{padding:9px;display:flex;flex-direction:column;gap:7px;overflow:auto}canvas{display:block;width:100%;height:100%}
+h1{font-size:clamp(14px,1.7vw,23px);margin:1px;text-align:center;text-shadow:0 0 8px var(--g)}.sub{text-align:center;font-size:10px;border-bottom:1px solid var(--d);padding-bottom:7px}.b{border:1px solid var(--d);padding:7px}.k{font-size:10px;color:#4acb3d}.v{font-size:clamp(15px,2vw,23px)}button,input,select{font:inherit;color:var(--g);background:#001000;border:1px solid var(--d);padding:8px}button.on,button.active{border-color:var(--g);box-shadow:inset 0 0 12px #267f20,0 0 7px rgba(114,255,85,.2)}
+.ranges{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:5px}.displaymode{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin-top:5px}.displaymode button{min-height:42px;font-size:12px;font-weight:bold}.presets{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:5px}.presets button{min-height:40px}.timegrid{display:grid;grid-template-columns:1fr 1fr;gap:5px}.sm{font-size:10px;line-height:1.5}.setup{display:none}.setup.open{display:block}.pixelgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;align-items:center}.pixelgrid label{font-size:10px;color:#4acb3d}.pixelgrid input[type=range]{width:100%;padding:0}.credit{font-size:8px;opacity:.65;text-align:center}
+.statusline{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.status-led{width:12px;height:12px;border-radius:50%;background:var(--red);box-shadow:0 0 9px var(--red);flex:0 0 auto}.status-led.ok{background:var(--g);box-shadow:0 0 9px var(--g)}.status-main{font-weight:bold}.status-detail{opacity:.8}.techgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px 10px;margin-top:5px}.techgrid span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.presetedit{display:grid;grid-template-columns:58px minmax(0,1fr) minmax(0,1fr);gap:4px;margin:4px 0}.presetedit input{min-width:0;width:100%}
+@media(orientation:portrait){html,body{overflow:auto}#app{height:auto;min-height:100dvh;grid-template-columns:1fr;grid-template-rows:min(98vw,62dvh) auto}.panel{overflow:visible}.head{order:0}.rangebox{order:1}.displaybox{order:2}.presetbox{order:3}.timegrid{order:4}.setupbtn{order:5}.setup{order:6}.statusbox{order:7}.credit{order:8}.displaymode button{font-size:clamp(12px,3.4vw,16px);min-height:48px}.presets button{font-size:clamp(11px,3.1vw,15px);min-height:46px}.timegrid .v{font-size:clamp(17px,5vw,24px)}}
+@media(max-width:520px) and (orientation:portrait){#app{padding:4px;gap:4px}.panel{padding:5px;gap:5px}.b{padding:6px}.sm,.k,.sub{font-size:9px}.displaymode{gap:4px}.techgrid{grid-template-columns:1fr 1fr}.status-led{width:11px;height:11px}}
 </style>
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="theme-color" content="#001500">
@@ -49,82 +25,15 @@ button.on{border-color:var(--g);box-shadow:inset 0 0 12px #267f20,0 0 7px rgba(1
 <div id="app">
 <main class="scope"><canvas id="scope"></canvas></main>
 <aside class="panel">
-<div class="head"><h1>JOE'S TRAFFIC SCOPE</h1><div class="sub">JTS-01 // LIVE ADS-B + WX // V1.2 WEB</div></div>
-<div class="timegrid">
-  <div class="b"><div class="k">UTC</div><div class="v" id="utc">--:--:--</div></div>
-  <div class="b"><div class="k">LOCAL TIME</div><div class="v" id="localtime">--:--:--</div><div class="sm" id="tzname">LOCAL</div></div>
-</div>
-
-<div class="b rangebox">
-<div class="k">RANGE</div><div class="v"><span id="rangev">20</span> NM</div>
-<div class="ranges"><button data-r="5">05</button><button data-r="10">10</button><button class="on" data-r="20">20</button><button data-r="40">40</button><button data-r="80">80</button></div>
-</div>
-
-<div class="b displaybox">
-  <div class="k">DISPLAY</div>
-  <div class="displaymode triple">
-    <button id="radarMode" class="active">CLASSIC</button>
-    <button id="ledRadarMode">FB LED RADAR</button>
-    <button id="boardMode">FB BOARD</button>
-  </div>
-  <div class="sm" id="displayInfo">SCOPE / CRT</div>
-</div>
-
-<div class="row2">
-<div class="b"><div class="k">CONTACTS</div><div class="v" id="contacts">00</div></div>
-<div class="b"><div class="k">WEATHER</div><button id="wxBtn">WX OFF</button><div class="sm" id="wxInfo">NO LAYER</div></div>
-</div>
-
-<div class="b sm">DATA <span id="link">STANDBY</span><br>LAST RX <span id="last">--</span><br>FAILS <span id="fails">0</span><br>NEXT RX <span id="nextRx">15s</span><br>SOURCE <span id="apiDiag">--</span><br><button id="refreshData">REFRESH DATA</button></div>
-<div class="b sm"><div class="k">STATION</div><span id="station">ACQUIRING...</span></div>
-
-
-
-<div class="b">
-  <div class="k">CENTER</div>
-  <button id="homeGps">HOME / GPS</button>
-</div>
-
-<div class="b presetbox">
-  <div class="k">MY PRESETS</div>
-  <div class="presets" id="presetButtons"></div>
-</div>
-
-<button id="setupBtn">SETUP</button>
-<div class="b setup" id="setup">
-<div class="k">FIXED STATION</div>
-<div class="setupgrid">
-<input id="ilat" placeholder="Latitude"><input id="ilon" placeholder="Longitude">
-<button id="fixed">USE FIXED POSITION</button><button id="gps">RETRY GPS</button>
-</div>
-<hr style="border:0;border-top:1px solid var(--d);margin:10px 0">
-<div class="k">MY PRESETS — EDIT</div>
-<div id="presetEditor" class="sm"></div>
-<button id="resetPresets" style="margin-top:6px;width:100%">RESET PRESETS</button>
-<hr style="border:0;border-top:1px solid var(--d);margin:10px 0">
-<div class="k">DISPLAY APPEARANCE</div>
-<div class="pixelgrid">
-  <label>LED SIZE <span id="pitchLabel">5</span></label><input id="ledPitch" type="range" min="5" max="14" value="5" step="1">
-  <label>LED SHAPE</label><select id="ledShape"><option value="round">ROUND</option><option value="square">SQUARE</option></select>
-  <label>GLOW <span id="glowLabel">0</span>%</label><input id="ledGlow" type="range" min="0" max="100" value="0" step="5">
-  <label>BACKGROUND</label><input type="color" id="ledBg" value="#050505">
-  <label>LED OFF</label><input type="color" id="ledOff" value="#141414">
-  <label>STYLE</label><select id="colorPreset"><option value="mono">MONO GREEN</option><option value="amber">AMBER</option><option value="atc">ATC</option><option value="multi" selected>MULTICOLOR</option></select>
-</div>
-<hr style="border:0;border-top:1px solid var(--d);margin:10px 0">
-<div class="k">DATA COLORS</div>
-<div class="pixelgrid colors">
-<label>CALLSIGN</label><input type="color" id="colCall" value="#c8c8c8">
-<label>ROUTE / ID</label><input type="color" id="colRoute" value="#4aa8ff">
-<label>AIRCRAFT</label><input type="color" id="colType" value="#ff3030">
-<label>ALTITUDE</label><input type="color" id="colAlt" value="#48ff72">
-<label>SPEED</label><input type="color" id="colSpeed" value="#58d98e">
-<label>HEADING</label><input type="color" id="colHdg" value="#ffb02e">
-</div>
-</div>
-
-<div class="b sm" id="status">SYSTEM <span id="sys">INITIALIZING</span></div>
-<div class="credit">WEATHER DATA BY RAINVIEWER</div>
+<div class="head"><h1>JOE'S TRAFFIC SCOPE</h1><div class="sub">JTS-01 // LIVE ADS-B + WX // V1.3 WEB</div></div>
+<div class="b rangebox"><div class="k">RANGE</div><div class="v"><span id="rangev">20</span> NM</div><div class="ranges"><button data-r="5">05</button><button data-r="10">10</button><button class="on" data-r="20">20</button><button data-r="40">40</button><button data-r="80">80</button></div></div>
+<div class="b displaybox"><div class="k">DISPLAY</div><div class="displaymode"><button id="radarMode" class="active">CLASSIC</button><button id="radarWxMode">CLASSIC + WX</button><button id="ledRadarMode">LED RADAR</button><button id="boardMode">LED BOARD</button></div></div>
+<div class="b presetbox"><div class="k">PRESETS</div><div class="presets" id="presetButtons"><button id="positionPreset">POSITION</button></div></div>
+<div class="timegrid"><div class="b"><div class="k">UTC</div><div class="v" id="utc">--:--:--</div></div><div class="b"><div class="k">LOCAL TIME</div><div class="v" id="localtime">--:--:--</div><div class="sm" id="tzname">LOCAL</div></div></div>
+<button id="setupBtn" class="setupbtn">SETUP</button>
+<div class="b setup" id="setup"><div class="k">MY PRESETS — EDIT</div><div id="presetEditor" class="sm"></div><button id="resetPresets" style="margin-top:6px;width:100%">RESET PRESETS</button><hr style="border:0;border-top:1px solid var(--d);margin:10px 0"><div class="k">DISPLAY APPEARANCE</div><div class="pixelgrid"><label>LED SIZE <span id="pitchLabel">5</span></label><input id="ledPitch" type="range" min="5" max="14" value="5" step="1"><label>LED SHAPE</label><select id="ledShape"><option value="round">ROUND</option><option value="square">SQUARE</option></select><label>GLOW <span id="glowLabel">0</span>%</label><input id="ledGlow" type="range" min="0" max="100" value="0" step="5"><label>BACKGROUND</label><input type="color" id="ledBg" value="#050505"><label>LED OFF</label><input type="color" id="ledOff" value="#141414"><label>STYLE</label><select id="colorPreset"><option value="mono">MONO GREEN</option><option value="amber">AMBER</option><option value="atc">ATC</option><option value="multi" selected>MULTICOLOR</option></select></div><hr style="border:0;border-top:1px solid var(--d);margin:10px 0"><div class="k">DATA COLORS</div><div class="pixelgrid colors"><label>CALLSIGN</label><input type="color" id="colCall" value="#c8c8c8"><label>ROUTE / ID</label><input type="color" id="colRoute" value="#4aa8ff"><label>AIRCRAFT</label><input type="color" id="colType" value="#ff3030"><label>ALTITUDE</label><input type="color" id="colAlt" value="#48ff72"><label>SPEED</label><input type="color" id="colSpeed" value="#58d98e"><label>HEADING</label><input type="color" id="colHdg" value="#ffb02e"></div></div>
+<div class="b sm statusbox" id="status"><div class="statusline"><span id="statusLed" class="status-led"></span><span id="sys" class="status-main">SYSTEM INITIALIZING</span></div><div class="techgrid status-detail"><span>DATA <b id="link">STANDBY</b></span><span>CONTACTS <b id="contacts">00</b></span><span>LAST RX <b id="last">--</b></span><span>SOURCE <b id="apiDiag">--</b></span><span>FAILS <b id="fails">0</b></span><span>NEXT RX <b id="nextRx">15s</b></span><span>STATION <b id="station">ACQUIRING...</b></span><span>VERSION <b>V1.3 WEB</b></span></div><button id="refreshData" style="margin-top:6px">REFRESH DATA</button></div>
+<div id="wxInfo" style="display:none">NO LAYER</div><div class="credit">WEATHER DATA BY RAINVIEWER</div>
 </aside></div>
 
 <script>
@@ -139,20 +48,17 @@ let dataColors={call:'#c8c8c8',route:'#4aa8ff',type:'#ff3030',alt:'#48ff72',spee
 function activeColor(key){if(presetMode==='mono')return G;if(presetMode==='amber')return '#ffb02e';if(presetMode==='atc'){const m={call:'#ffffff',route:'#62b8ff',type:'#bfc7c9',alt:'#63ff83',speed:'#63ff83',hdg:'#ffd15c'};return m[key]||G;}return dataColors[key]||G;}
 const tracks=new Map(),rad=d=>d*Math.PI/180,nowSec=()=>performance.now()/1000;
 const DEFAULT_PRESETS=[
-  {name:"LFPG",lat:49.0097,lon:2.5479,tz:"Europe/Paris"},
-  {name:"EGLL",lat:51.4700,lon:-0.4543,tz:"Europe/London"},
-  {name:"KJFK",lat:40.6413,lon:-73.7781,tz:"America/New_York"},
-  {name:"KLAX",lat:33.9416,lon:-118.4085,tz:"America/Los_Angeles"},
-  {name:"RJTT",lat:35.5494,lon:139.7798,tz:"Asia/Tokyo"},
-  {name:"YSSY",lat:-33.9399,lon:151.1753,tz:"Australia/Sydney"}
+  {name:"P1",lat:49.0097,lon:2.5479,tz:"Europe/Paris"},
+  {name:"P2",lat:51.4700,lon:-0.4543,tz:"Europe/London"},
+  {name:"P3",lat:40.6413,lon:-73.7781,tz:"America/New_York"}
 ];
-function loadPresets(){try{const x=JSON.parse(localStorage.getItem("jts_my_presets"));if(Array.isArray(x)&&x.length===6)return x}catch(e){}return DEFAULT_PRESETS.map(x=>({...x}))}
+function loadPresets(){try{const x=JSON.parse(localStorage.getItem("jts_my_presets"));if(Array.isArray(x)&&x.length>=3)return x.slice(0,3)}catch(e){}return DEFAULT_PRESETS.map(x=>({...x}))}
 let myPresets=loadPresets();
 function savePresets(){localStorage.setItem("jts_my_presets",JSON.stringify(myPresets));renderPresetButtons();renderPresetEditor()}
-function renderPresetButtons(){const box=document.getElementById("presetButtons");if(!box)return;box.innerHTML="";myPresets.forEach((a,i)=>{const b=document.createElement("button");b.dataset.preset=i;b.textContent=(a.name||("P"+(i+1))).toUpperCase().slice(0,8);b.onclick=()=>usePreset(i);box.appendChild(b)})}
-function markPreset(i){document.querySelectorAll("[data-preset]").forEach(b=>b.classList.toggle("active",Number(b.dataset.preset)===i))}
+function renderPresetButtons(){const box=document.getElementById("presetButtons");if(!box)return;box.innerHTML='<button id="positionPreset">POSITION</button>';document.getElementById("positionPreset").onclick=()=>{markPreset("position");tryGPS()};myPresets.forEach((a,i)=>{const b=document.createElement("button");b.dataset.preset=i;b.textContent=(a.name||("P"+(i+1))).toUpperCase().slice(0,8);b.onclick=()=>usePreset(i);box.appendChild(b)})}
+function markPreset(i){document.querySelectorAll("[data-preset]").forEach(b=>b.classList.toggle("active",Number(b.dataset.preset)===i));const p=document.getElementById("positionPreset");if(p)p.classList.toggle("active",i==="position")}
 function usePreset(i){const a=myPresets[i];if(!a||!Number.isFinite(+a.lat)||!Number.isFinite(+a.lon))return;markPreset(i);setTZ(a.tz||Intl.DateTimeFormat().resolvedOptions().timeZone||"UTC");setStation(+a.lat,+a.lon,a.name||("PRESET "+(i+1)))}
-function renderPresetEditor(){const box=document.getElementById("presetEditor");if(!box)return;box.innerHTML="";myPresets.forEach((a,i)=>{const row=document.createElement("div");row.style.cssText="display:grid;grid-template-columns:52px 1fr 1fr 34px;gap:3px;margin:3px 0";row.innerHTML=`<input data-k="name" value="${String(a.name||'').replace(/"/g,'&quot;')}" title="Name"><input data-k="lat" value="${a.lat}" title="Latitude"><input data-k="lon" value="${a.lon}" title="Longitude"><button title="Save current GPS/center">GPS</button>`;const ins=row.querySelectorAll("input");ins.forEach(inp=>inp.onchange=()=>{const k=inp.dataset.k;myPresets[i][k]=k==='name'?inp.value.trim().toUpperCase().slice(0,8):Number(inp.value);savePresets()});row.querySelector("button").onclick=()=>{if(lat==null||lon==null)return;myPresets[i].lat=+lat.toFixed(6);myPresets[i].lon=+lon.toFixed(6);myPresets[i].tz=Intl.DateTimeFormat().resolvedOptions().timeZone||"UTC";savePresets()};box.appendChild(row)})}
+function renderPresetEditor(){const box=document.getElementById("presetEditor");if(!box)return;box.innerHTML="";myPresets.forEach((a,i)=>{const row=document.createElement("div");row.className="presetedit";row.innerHTML=`<input data-k="name" value="${String(a.name||'').replace(/"/g,'&quot;')}" title="Name"><input data-k="lat" value="${a.lat}" title="Latitude"><input data-k="lon" value="${a.lon}" title="Longitude">`;row.querySelectorAll("input").forEach(inp=>inp.onchange=()=>{const k=inp.dataset.k;myPresets[i][k]=k==='name'?inp.value.trim().toUpperCase().slice(0,8):Number(inp.value);savePresets()});box.appendChild(row)})}
 
 let activeTZ=Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
 function setTZ(tz){activeTZ=tz||"UTC";tzname.textContent=activeTZ}
@@ -178,7 +84,7 @@ function altitude(a){let v=a.alt_baro??a.alt_geom;if(v==="ground")return"GND";re
 
 function setStation(a,b,m){
  lat=a;lon=b;localStorage.setItem("jts_lat",a);localStorage.setItem("jts_lon",b);
- station.textContent=`${m} • ${a.toFixed(4)}N ${b>=0?"+":""}${b.toFixed(4)}E`;sys.textContent=m;
+ station.textContent=`${m} • ${a.toFixed(4)}N ${b>=0?"+":""}${b.toFixed(4)}E`;
  traffic(); if(wxOn)loadWX();
 }
 
@@ -209,13 +115,16 @@ async function traffic(){
   apiDiag.textContent=`${dg.source||dg.endpoint||"?"} AC:${rawAc.length} POS:${list.length}`;
   if(list.length>0) updateTracks(list);
   contacts.textContent=String(list.length).padStart(2,"0");
-  link.textContent="ONLINE";lastGood=Date.now();last.textContent=new Date().toISOString().slice(11,19);sys.textContent=list.length?"NOMINAL":"ONLINE / ZERO AC";pollDelay=15000;
+  link.textContent="ONLINE";lastGood=Date.now();last.textContent=new Date().toISOString().slice(11,19);pollDelay=15000;updateSystemHealth();
  }catch(e){
   failCount++;fails.textContent=failCount;const age=lastGood?Date.now()-lastGood:Infinity;
-  link.textContent=age<180000?"HOLD":"RECONNECTING";sys.textContent=age<180000?"DATA HOLD":"RECONNECTING";
+  link.textContent=age<45000?"HOLD":"RECONNECTING";updateSystemHealth();
   pollDelay=pollDelay<=15000?30000:60000;
  }finally{requestBusy=false;scheduleTraffic()}
 }
+
+function updateSystemHealth(){const age=lastGood?Date.now()-lastGood:Infinity;const ok=lat!==null&&age<45000;const led=document.getElementById("statusLed");if(led)led.classList.toggle("ok",ok);sys.textContent=ok?"SYSTEM NOMINAL":"SYSTEM DEGRADED";}
+setInterval(updateSystemHealth,1000);
 function scheduleTraffic(delay=pollDelay){
  clearTimeout(pollTimer);clearInterval(countTimer);let left=Math.round(delay/1000);nextRx.textContent=left+"s";
  countTimer=setInterval(()=>{left=Math.max(0,left-1);nextRx.textContent=left+"s";if(!left)clearInterval(countTimer)},1000);
@@ -502,7 +411,7 @@ function drawPixelBoard(W,H,d){
   if(pages>1)fbText3(fbM,`PAGE ${page+1}/${pages}`,MW-fbMeasure3(`PAGE ${page+1}/${pages}`)-4,MH-6,activeColor('type'));
   fbRenderLeds(W,H,d);
 }
-function applyDisplayMode(mode){displayMode=['radar','ledradar','board'].includes(mode)?mode:'radar';localStorage.setItem('jts_display_mode',displayMode);radarMode.classList.toggle('active',displayMode==='radar');ledRadarMode.classList.toggle('active',displayMode==='ledradar');boardMode.classList.toggle('active',displayMode==='board');displayInfo.textContent=displayMode==='radar'?'CLASSIC SCOPE / WX':displayMode==='ledradar'?'FLIGHTBOARD LED RADAR':'FLIGHTBOARD MULTI BOARD';}
+function applyDisplayMode(mode){displayMode=['radar','radarwx','ledradar','board'].includes(mode)?mode:'radar';localStorage.setItem('jts_display_mode',displayMode);wxOn=displayMode==='radarwx';radarMode.classList.toggle('active',displayMode==='radar');radarWxMode.classList.toggle('active',displayMode==='radarwx');ledRadarMode.classList.toggle('active',displayMode==='ledradar');boardMode.classList.toggle('active',displayMode==='board');if(wxOn)loadWX();else wxInfo.textContent="NO LAYER";}
 
 function draw(){
  interpolateTracks();
@@ -541,10 +450,10 @@ function draw(){
 }
 
 function tryGPS(){
- sys.textContent="GPS SEARCH";
+ link.textContent="GPS SEARCH";updateSystemHealth();
  navigator.geolocation.getCurrentPosition(
-  p=>{markPreset("");setTZ(Intl.DateTimeFormat().resolvedOptions().timeZone||"UTC");setStation(p.coords.latitude,p.coords.longitude,"GPS")},
-  ()=>{const a=+localStorage.getItem("jts_lat"),b=+localStorage.getItem("jts_lon");if(Number.isFinite(a)&&Number.isFinite(b)&&(a||b)){setTZ(Intl.DateTimeFormat().resolvedOptions().timeZone||"UTC");setStation(a,b,"MEM");}else{station.textContent="POSITION REQUIRED";sys.textContent="NO POSITION";setup.classList.add("open")}},
+  p=>{markPreset("position");setTZ(Intl.DateTimeFormat().resolvedOptions().timeZone||"UTC");setStation(p.coords.latitude,p.coords.longitude,"GPS");updateSystemHealth()},
+  ()=>{const a=+localStorage.getItem("jts_lat"),b=+localStorage.getItem("jts_lon");if(Number.isFinite(a)&&Number.isFinite(b)&&(a||b)){markPreset("position");setTZ(Intl.DateTimeFormat().resolvedOptions().timeZone||"UTC");setStation(a,b,"MEM");}else{station.textContent="POSITION REQUIRED";updateSystemHealth()}},
   {enableHighAccuracy:true,timeout:10000,maximumAge:30000}
  );
 }
@@ -557,13 +466,13 @@ document.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>{
  range=+b.dataset.r;rangev.textContent=range;document.querySelectorAll("[data-r]").forEach(q=>q.classList.toggle("on",q===b));traffic();if(wxOn)loadWX()
 });
 renderPresetButtons();renderPresetEditor();
-resetPresets.onclick=()=>{if(confirm("Reset the 6 presets to defaults?")){myPresets=DEFAULT_PRESETS.map(x=>({...x}));savePresets()}};
-homeGps.onclick=()=>tryGPS();
+resetPresets.onclick=()=>{if(confirm("Reset the 3 presets to defaults?")){myPresets=DEFAULT_PRESETS.map(x=>({...x}));savePresets()}};
 refreshData.onclick=forceTraffic;
-wxBtn.onclick=()=>{wxOn=!wxOn;wxBtn.textContent=wxOn?"WX ON":"WX OFF";wxBtn.classList.toggle("on",wxOn);if(wxOn)loadWX();else wxInfo.textContent="NO LAYER"};
 radarMode.onclick=()=>applyDisplayMode('radar');
+radarWxMode.onclick=()=>applyDisplayMode('radarwx');
 ledRadarMode.onclick=()=>applyDisplayMode('ledradar');
 boardMode.onclick=()=>applyDisplayMode('board');
+setupBtn.onclick=()=>setup.classList.toggle("open");
 const ledPitchCtl=document.getElementById('ledPitch'),ledShapeCtl=document.getElementById('ledShape'),ledGlowCtl=document.getElementById('ledGlow'),ledBgCtl=document.getElementById('ledBg'),ledOffCtl=document.getElementById('ledOff');
 ledPitchCtl.value=String(ledPitch); pitchLabel.textContent=String(ledPitch);
 ledShapeCtl.value=ledShape; ledGlowCtl.value=String(ledGlow); glowLabel.textContent=String(ledGlow);
@@ -573,11 +482,8 @@ ledShapeCtl.onchange=()=>{ledShape=ledShapeCtl.value;localStorage.setItem('jts_l
 ledGlowCtl.oninput=()=>{ledGlow=+ledGlowCtl.value;glowLabel.textContent=String(ledGlow);localStorage.setItem('jts_led_glow',ledGlow)};
 ledBgCtl.oninput=()=>{ledBgColor=ledBgCtl.value;localStorage.setItem('jts_led_bg',ledBgColor);fbOffGrid=null};
 ledOffCtl.oninput=()=>{ledOffColor=ledOffCtl.value;localStorage.setItem('jts_led_off',ledOffColor);fbOffGrid=null};
-document.addEventListener('keydown',e=>{if((e.key==='r'||e.key==='R')&&!/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName))applyDisplayMode(displayMode==='radar'?'ledradar':displayMode==='ledradar'?'board':'radar')});
-setupBtn.onclick=()=>setup.classList.toggle("open");
-fixed.onclick=()=>{let a=parseFloat(ilat.value.replace(",",".")),b=parseFloat(ilon.value.replace(",","."));if(Number.isFinite(a)&&Number.isFinite(b)&&Math.abs(a)<=90&&Math.abs(b)<=180){markPreset("");setTZ(Intl.DateTimeFormat().resolvedOptions().timeZone||"UTC");setStation(a,b,"FIXED");setup.classList.remove("open")}};
-gps.onclick=tryGPS;
-let sa=localStorage.getItem("jts_lat"),so=localStorage.getItem("jts_lon");if(sa)ilat.value=sa;if(so)ilon.value=so;
+document.addEventListener('keydown',e=>{if((e.key==='r'||e.key==='R')&&!/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName))applyDisplayMode(displayMode==='radar'?'radarwx':displayMode==='radarwx'?'ledradar':displayMode==='ledradar'?'board':'radar')});
+
 setTZ(Intl.DateTimeFormat().resolvedOptions().timeZone||"UTC");
 colorPreset.value=presetMode; colCall.value=dataColors.call;colRoute.value=dataColors.route;colType.value=dataColors.type;colAlt.value=dataColors.alt;colSpeed.value=dataColors.speed;colHdg.value=dataColors.hdg;
 colorPreset.onchange=()=>{presetMode=colorPreset.value;localStorage.setItem('jts_color_preset',colorPreset.value)};
