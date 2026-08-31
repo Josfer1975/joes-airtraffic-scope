@@ -9,11 +9,12 @@
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:var(--bg);color:var(--g);font-family:"Courier New",monospace;overflow:hidden}
 body:before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at center,transparent 55%,rgba(0,0,0,.32) 100%);z-index:19}body:after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.17) 0 1px,transparent 1px 3px);z-index:20}
 #app{width:100vw;height:100dvh;display:grid;grid-template-columns:minmax(0,1fr) clamp(280px,24vw,390px);gap:8px;padding:8px}.scope,.panel{border:1px solid var(--d);box-shadow:inset 0 0 24px rgba(25,130,25,.18)}.scope{min-width:0;min-height:0}.panel{padding:9px;display:flex;flex-direction:column;gap:7px;overflow:auto}canvas{display:block;width:100%;height:100%}
-h1{font-size:clamp(14px,1.7vw,23px);margin:1px;text-align:center;text-shadow:0 0 8px var(--g)}.sub{text-align:center;font-size:10px;border-bottom:1px solid var(--d);padding-bottom:7px}.b{border:1px solid var(--d);padding:7px}.k{font-size:10px;color:#4acb3d}.v{font-size:clamp(15px,2vw,23px)}button,input,select{font:inherit;color:var(--g);background:#001000;border:1px solid var(--d);padding:8px}button.on,button.active{border-color:var(--g);box-shadow:inset 0 0 12px #267f20,0 0 7px rgba(114,255,85,.2)}
-.ranges{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:5px}.displaymode{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin-top:5px}.displaymode button{min-height:42px;font-size:12px;font-weight:bold}.presets{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:5px}.presets button{min-height:40px}.timegrid{display:grid;grid-template-columns:1fr 1fr;gap:5px}.sm{font-size:10px;line-height:1.5}.setup{display:none}.setup.open{display:block}.pixelgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;align-items:center}.pixelgrid label{font-size:10px;color:#4acb3d}.pixelgrid input[type=range]{width:100%;padding:0}.credit{font-size:8px;opacity:.65;text-align:center}
+h1{font-size:clamp(14px,1.7vw,23px);margin:1px;text-align:center;text-shadow:0 0 8px var(--g)}.sub{text-align:center;font-size:10px}.head{border:1px solid var(--d);padding:7px}.headstatus{border-top:1px solid var(--d);margin-top:6px;padding-top:6px}.headtech{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px 8px;margin-top:4px;font-size:9px;opacity:.82}.headtech span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.headrefresh{width:100%;padding:5px;margin-top:5px;font-size:9px}.b{border:1px solid var(--d);padding:7px}.k{font-size:10px;color:#4acb3d}.v{font-size:clamp(15px,2vw,23px)}button,input,select{font:inherit;color:var(--g);background:#001000;border:1px solid var(--d);padding:8px}button.on,button.active{color:#001000;background:#72ff55;border:2px solid #c8ffb8;box-shadow:inset 0 0 5px rgba(255,255,255,.72),0 0 16px rgba(114,255,85,.95),0 0 30px rgba(114,255,85,.42);text-shadow:none;font-weight:900;transform:translateY(-1px)} .langswitch{display:flex;gap:4px;margin-top:5px}.langswitch button{flex:1;padding:6px;font-size:10px;font-weight:bold;display:flex;align-items:center;justify-content:center;gap:7px}.langswitch button:first-child,.langswitch button:last-child{font-family:inherit}.langswitch button span{font-family:inherit}.langswitch button{font-size:10px}.langswitch button::first-letter{font-size:18px}.langswitch button.active{outline:1px solid #e4ffda}
+.ranges{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:5px}.displaymode{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin-top:5px}.displaymode button{min-height:42px;font-size:12px;font-weight:bold}.presets{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:5px}.presets button{min-height:40px}.timegrid{display:grid;grid-template-columns:1fr 1fr;gap:5px}.sm{font-size:10px;line-height:1.5}.setup{display:none}.setup.open{display:block}.setupbtn{position:relative;font-weight:bold;letter-spacing:.4px}.pixelgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;align-items:center}.pixelgrid label{font-size:10px;color:#4acb3d}.pixelgrid input[type=range]{width:100%;padding:0}.credit{font-size:8px;opacity:.65;text-align:center}
 .statusline{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.status-led{width:12px;height:12px;border-radius:50%;background:var(--red);box-shadow:0 0 9px var(--red);flex:0 0 auto}.status-led.ok{background:var(--g);box-shadow:0 0 9px var(--g)}.status-main{font-weight:bold}.status-detail{opacity:.8}.techgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px 10px;margin-top:5px}.techgrid span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.presetedit{display:grid;grid-template-columns:58px minmax(0,1fr) minmax(0,1fr);gap:4px;margin:4px 0}.presetedit input{min-width:0;width:100%}
-@media(orientation:portrait){html,body{overflow:auto}#app{height:auto;min-height:100dvh;grid-template-columns:1fr;grid-template-rows:min(98vw,62dvh) auto}.panel{overflow:visible}.head{order:0}.rangebox{order:1}.displaybox{order:2}.presetbox{order:3}.timegrid{order:4}.setupbtn{order:5}.setup{order:6}.statusbox{order:7}.credit{order:8}.displaymode button{font-size:clamp(12px,3.4vw,16px);min-height:48px}.presets button{font-size:clamp(11px,3.1vw,15px);min-height:46px}.timegrid .v{font-size:clamp(17px,5vw,24px)}}
+.presetedit{display:grid;grid-template-columns:32px 78px 64px minmax(0,1fr);gap:4px;margin:5px 0;align-items:center}.presetedit input{min-width:0;width:100%;text-transform:uppercase}.presetedit button{padding:7px 4px}.airport-result{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#62d95a}.airport-result.err{color:var(--red)}
+.classicdata{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:6px 0}.classicdata button{padding:6px 3px;font-size:9px}.checkgrid{display:grid;grid-template-columns:1fr 1fr;gap:5px 10px;margin-top:6px}.checkgrid label{display:flex;align-items:center;gap:6px;font-size:10px;color:#4acb3d}.checkgrid input{accent-color:#72ff55}.classicnote{font-size:8px;opacity:.7;margin-top:5px}
+@media(orientation:portrait){html,body{overflow:auto}#app{height:auto;min-height:100dvh;grid-template-columns:1fr;grid-template-rows:min(98vw,62dvh) auto}.panel{overflow:visible}.head{order:0}.rangebox{order:1}.displaybox{order:2}.presetbox{order:3}.timegrid{order:4}.setupbtn{order:5}.setup{order:6}.credit{order:7}.displaymode button{font-size:clamp(12px,3.4vw,16px);min-height:48px}.presets button{font-size:clamp(11px,3.1vw,15px);min-height:46px}.timegrid .v{font-size:clamp(17px,5vw,24px)}}
 @media(max-width:520px) and (orientation:portrait){#app{padding:4px;gap:4px}.panel{padding:5px;gap:5px}.b{padding:6px}.sm,.k,.sub{font-size:9px}.displaymode{gap:4px}.techgrid{grid-template-columns:1fr 1fr}.status-led{width:11px;height:11px}}
 </style>
 <link rel="manifest" href="/manifest.webmanifest">
@@ -25,14 +26,13 @@ h1{font-size:clamp(14px,1.7vw,23px);margin:1px;text-align:center;text-shadow:0 0
 <div id="app">
 <main class="scope"><canvas id="scope"></canvas></main>
 <aside class="panel">
-<div class="head"><h1>JOE'S TRAFFIC SCOPE</h1><div class="sub">JTS-01 // LIVE ADS-B + WX // V1.3 WEB</div></div>
+<div class="head"><h1>JOE'S TRAFFIC SCOPE</h1><div class="sub">JTS-01 // LIVE ADS-B + WX // V1.3H</div><div class="headstatus sm"><div class="statusline"><span id="statusLed" class="status-led"></span><span id="sys" class="status-main">SYSTEM INITIALIZING</span></div><div class="headtech status-detail"><span>DATA <b id="link">STANDBY</b></span><span>CONTACTS <b id="contacts">00</b></span><span>LAST RX <b id="last">--</b></span><span>SOURCE <b id="apiDiag">--</b></span><span>FAILS <b id="fails">0</b></span><span>NEXT <b id="nextRx">15s</b></span><span>STATION <b id="station">ACQUIRING...</b></span><span>VERSION <b>V1.3H</b></span></div><button id="refreshData" class="headrefresh">REFRESH DATA</button><div class="langswitch" title="Language / Langue"><button id="langEN" class="active" aria-label="English" title="English">🇬🇧 <span>EN</span></button><button id="langFR" aria-label="Français" title="Français">🇫🇷 <span>FR</span></button></div></div></div>
 <div class="b rangebox"><div class="k">RANGE</div><div class="v"><span id="rangev">20</span> NM</div><div class="ranges"><button data-r="5">05</button><button data-r="10">10</button><button class="on" data-r="20">20</button><button data-r="40">40</button><button data-r="80">80</button></div></div>
 <div class="b displaybox"><div class="k">DISPLAY</div><div class="displaymode"><button id="radarMode" class="active">CLASSIC</button><button id="radarWxMode">CLASSIC + WX</button><button id="ledRadarMode">LED RADAR</button><button id="boardMode">LED BOARD</button></div></div>
-<div class="b presetbox"><div class="k">PRESETS</div><div class="presets" id="presetButtons"><button id="positionPreset">POSITION</button></div></div>
+<div class="b presetbox"><div class="k">PRESETS</div><div class="presets" id="presetButtons"><button id="positionPreset">MY POSITION</button></div></div>
 <div class="timegrid"><div class="b"><div class="k">UTC</div><div class="v" id="utc">--:--:--</div></div><div class="b"><div class="k">LOCAL TIME</div><div class="v" id="localtime">--:--:--</div><div class="sm" id="tzname">LOCAL</div></div></div>
-<button id="setupBtn" class="setupbtn">SETUP</button>
-<div class="b setup" id="setup"><div class="k">MY PRESETS — EDIT</div><div id="presetEditor" class="sm"></div><button id="resetPresets" style="margin-top:6px;width:100%">RESET PRESETS</button><hr style="border:0;border-top:1px solid var(--d);margin:10px 0"><div class="k">DISPLAY APPEARANCE</div><div class="pixelgrid"><label>LED SIZE <span id="pitchLabel">5</span></label><input id="ledPitch" type="range" min="5" max="14" value="5" step="1"><label>LED SHAPE</label><select id="ledShape"><option value="round">ROUND</option><option value="square">SQUARE</option></select><label>GLOW <span id="glowLabel">0</span>%</label><input id="ledGlow" type="range" min="0" max="100" value="0" step="5"><label>BACKGROUND</label><input type="color" id="ledBg" value="#050505"><label>LED OFF</label><input type="color" id="ledOff" value="#141414"><label>STYLE</label><select id="colorPreset"><option value="mono">MONO GREEN</option><option value="amber">AMBER</option><option value="atc">ATC</option><option value="multi" selected>MULTICOLOR</option></select></div><hr style="border:0;border-top:1px solid var(--d);margin:10px 0"><div class="k">DATA COLORS</div><div class="pixelgrid colors"><label>CALLSIGN</label><input type="color" id="colCall" value="#c8c8c8"><label>ROUTE / ID</label><input type="color" id="colRoute" value="#4aa8ff"><label>AIRCRAFT</label><input type="color" id="colType" value="#ff3030"><label>ALTITUDE</label><input type="color" id="colAlt" value="#48ff72"><label>SPEED</label><input type="color" id="colSpeed" value="#58d98e"><label>HEADING</label><input type="color" id="colHdg" value="#ffb02e"></div></div>
-<div class="b sm statusbox" id="status"><div class="statusline"><span id="statusLed" class="status-led"></span><span id="sys" class="status-main">SYSTEM INITIALIZING</span></div><div class="techgrid status-detail"><span>DATA <b id="link">STANDBY</b></span><span>CONTACTS <b id="contacts">00</b></span><span>LAST RX <b id="last">--</b></span><span>SOURCE <b id="apiDiag">--</b></span><span>FAILS <b id="fails">0</b></span><span>NEXT RX <b id="nextRx">15s</b></span><span>STATION <b id="station">ACQUIRING...</b></span><span>VERSION <b>V1.3 WEB</b></span></div><button id="refreshData" style="margin-top:6px">REFRESH DATA</button></div>
+<button id="setupBtn" class="setupbtn">SETUP ▼</button>
+<div class="b setup" id="setup"><div class="k">MY PRESETS — EDIT</div><div id="presetEditor" class="sm"></div><button id="resetPresets" style="margin-top:6px;width:100%">RESET PRESETS</button><hr style="border:0;border-top:1px solid var(--d);margin:10px 0"><div class="k" id="classicDataTitle">CLASSIC RADAR — DATA DISPLAY</div><div class="classicdata"><button id="classicMinimal">MINIMAL</button><button id="classicStandard">STANDARD</button><button id="classicFull">FULL</button></div><div class="checkgrid"><label><input type="checkbox" id="showCall" checked> <span id="lblCall">CALLSIGN</span></label><label><input type="checkbox" id="showAlt" checked> <span id="lblAlt">ALT / FL</span></label><label><input type="checkbox" id="showSpeed"> <span id="lblSpeed">SPEED</span></label><label><input type="checkbox" id="showHdg"> <span id="lblHdg">HEADING</span></label><label><input type="checkbox" id="showDist" checked> <span id="lblDist">DISTANCE</span></label><label><input type="checkbox" id="smartDeclutter" checked> <span id="lblSmart">SMART DECLUTTER</span></label></div><div class="classicnote" id="classicNote">TAP / CLICK AN AIRCRAFT FOR TEMPORARY FULL DATA</div><hr style="border:0;border-top:1px solid var(--d);margin:10px 0"><div class="k">DISPLAY APPEARANCE</div><div class="pixelgrid"><label>LED SIZE <span id="pitchLabel">5</span></label><input id="ledPitch" type="range" min="5" max="14" value="5" step="1"><label>LED SHAPE</label><select id="ledShape"><option value="round">ROUND</option><option value="square">SQUARE</option></select><label>GLOW <span id="glowLabel">0</span>%</label><input id="ledGlow" type="range" min="0" max="100" value="0" step="5"><label>BACKGROUND</label><input type="color" id="ledBg" value="#050505"><label>LED OFF</label><input type="color" id="ledOff" value="#141414"><label>STYLE</label><select id="colorPreset"><option value="mono">MONO GREEN</option><option value="amber">AMBER</option><option value="atc">ATC</option><option value="multi" selected>MULTICOLOR</option></select></div><hr style="border:0;border-top:1px solid var(--d);margin:10px 0"><div class="k" id="dataColorsTitle">DATA COLORS — ONLY FOR [LED BOARD]</div><div class="pixelgrid colors"><label>CALLSIGN</label><input type="color" id="colCall" value="#c8c8c8"><label>ROUTE / ID</label><input type="color" id="colRoute" value="#4aa8ff"><label>AIRCRAFT</label><input type="color" id="colType" value="#ff3030"><label>ALTITUDE</label><input type="color" id="colAlt" value="#48ff72"><label>SPEED</label><input type="color" id="colSpeed" value="#58d98e"><label>HEADING</label><input type="color" id="colHdg" value="#ffb02e"></div></div>
 <div id="wxInfo" style="display:none">NO LAYER</div><div class="credit">WEATHER DATA BY RAINVIEWER</div>
 </aside></div>
 
@@ -44,21 +44,61 @@ let ledBgColor="#050505",ledOffColor="#141414";
 let fbSelected=0,fbLastCycle=performance.now();
 const C=document.getElementById("scope"),X=C.getContext("2d"),G="#72ff55",D="#1b661b";
 let presetMode="multi";
+let classicCfg={call:true,alt:true,speed:false,hdg:false,dist:true,smart:true};
+try{classicCfg={...classicCfg,...JSON.parse(localStorage.getItem("jts_classic_data")||"{}")}}catch(e){}
+let classicHit=[],classicFocus=null,classicFocusUntil=0;
+function saveClassicCfg(){localStorage.setItem("jts_classic_data",JSON.stringify(classicCfg));syncClassicUI()}
+function classicPreset(kind){if(kind==='minimal')classicCfg={...classicCfg,call:true,alt:false,speed:false,hdg:false,dist:false};else if(kind==='standard')classicCfg={...classicCfg,call:true,alt:true,speed:false,hdg:false,dist:true};else classicCfg={...classicCfg,call:true,alt:true,speed:true,hdg:true,dist:true};saveClassicCfg()}
+function syncClassicUI(){const ids={showCall:'call',showAlt:'alt',showSpeed:'speed',showHdg:'hdg',showDist:'dist',smartDeclutter:'smart'};for(const [id,k] of Object.entries(ids)){const e=document.getElementById(id);if(e)e.checked=!!classicCfg[k]} const eq=(a,b)=>a.every(k=>!!classicCfg[k]===b[k]);document.getElementById('classicMinimal')?.classList.toggle('active',eq(['call','alt','speed','hdg','dist'],{call:1,alt:0,speed:0,hdg:0,dist:0}));document.getElementById('classicStandard')?.classList.toggle('active',eq(['call','alt','speed','hdg','dist'],{call:1,alt:1,speed:0,hdg:0,dist:1}));document.getElementById('classicFull')?.classList.toggle('active',eq(['call','alt','speed','hdg','dist'],{call:1,alt:1,speed:1,hdg:1,dist:1}))}
+
+const LANG={
+ en:{range:'RANGE',display:'DISPLAY',presets:'PRESETS',mypos:'MY POSITION',utc:'UTC',local:'LOCAL TIME',setup:'SETUP',presetedit:'MY PRESETS — EDIT',reset:'RESET PRESETS',appearance:'DISPLAY APPEARANCE',colors:'DATA COLORS — ONLY FOR [LED BOARD]',refresh:'REFRESH DATA',sysok:'SYSTEM NOMINAL',sysbad:'SYSTEM DEGRADED',online:'ONLINE',standby:'STANDBY',contacts:'CONTACTS',last:'LAST RX',source:'SOURCE',fails:'FAILS',next:'NEXT',station:'STATION',version:'VERSION',find:'FIND'},
+ fr:{range:'PORTÉE',display:'AFFICHAGE',presets:'PRÉRÉGLAGES',mypos:'MA POSITION',utc:'UTC',local:'HEURE LOCALE',setup:'RÉGLAGES',presetedit:'MES PRÉRÉGLAGES — ÉDITER',reset:'RÉINITIALISER LES PRÉRÉGLAGES',appearance:"APPARENCE DE L’AFFICHAGE",colors:'COULEURS DES DONNÉES — UNIQUEMENT POUR [LED BOARD]',refresh:'RAFRAÎCHIR LES DONNÉES',sysok:'SYSTÈME NOMINAL',sysbad:'SYSTÈME DÉGRADÉ',online:'EN LIGNE',standby:'EN ATTENTE',contacts:'CONTACTS',last:'DERNIÈRE RX',source:'SOURCE',fails:'ÉCHECS',next:'PROCHAINE RX',station:'STATION',version:'VERSION',find:'CHERCHER'}
+};
+let uiLang=localStorage.getItem('jts_lang')||'en';
+
 let dataColors={call:'#c8c8c8',route:'#4aa8ff',type:'#ff3030',alt:'#48ff72',speed:'#58d98e',hdg:'#ffb02e'};
 function activeColor(key){if(presetMode==='mono')return G;if(presetMode==='amber')return '#ffb02e';if(presetMode==='atc'){const m={call:'#ffffff',route:'#62b8ff',type:'#bfc7c9',alt:'#63ff83',speed:'#63ff83',hdg:'#ffd15c'};return m[key]||G;}return dataColors[key]||G;}
 const tracks=new Map(),rad=d=>d*Math.PI/180,nowSec=()=>performance.now()/1000;
 const DEFAULT_PRESETS=[
-  {name:"P1",lat:49.0097,lon:2.5479,tz:"Europe/Paris"},
-  {name:"P2",lat:51.4700,lon:-0.4543,tz:"Europe/London"},
-  {name:"P3",lat:40.6413,lon:-73.7781,tz:"America/New_York"}
+  {name:"LFPG",icao:"LFPG",airport:"Paris Charles de Gaulle",lat:49.0097,lon:2.5479,tz:"Europe/Paris"},
+  {name:"EGLL",icao:"EGLL",airport:"London Heathrow",lat:51.4700,lon:-0.4543,tz:"Europe/London"},
+  {name:"KJFK",icao:"KJFK",airport:"John F Kennedy Intl",lat:40.6413,lon:-73.7781,tz:"America/New_York"}
 ];
 function loadPresets(){try{const x=JSON.parse(localStorage.getItem("jts_my_presets"));if(Array.isArray(x)&&x.length>=3)return x.slice(0,3)}catch(e){}return DEFAULT_PRESETS.map(x=>({...x}))}
 let myPresets=loadPresets();
 function savePresets(){localStorage.setItem("jts_my_presets",JSON.stringify(myPresets));renderPresetButtons();renderPresetEditor()}
-function renderPresetButtons(){const box=document.getElementById("presetButtons");if(!box)return;box.innerHTML='<button id="positionPreset">POSITION</button>';document.getElementById("positionPreset").onclick=()=>{markPreset("position");tryGPS()};myPresets.forEach((a,i)=>{const b=document.createElement("button");b.dataset.preset=i;b.textContent=(a.name||("P"+(i+1))).toUpperCase().slice(0,8);b.onclick=()=>usePreset(i);box.appendChild(b)})}
+function renderPresetButtons(){const box=document.getElementById("presetButtons");if(!box)return;box.innerHTML='<button id="positionPreset">'+((LANG&&LANG[uiLang])?LANG[uiLang].mypos:'MY POSITION')+'</button>';document.getElementById("positionPreset").onclick=()=>{markPreset("position");tryGPS()};myPresets.forEach((a,i)=>{const b=document.createElement("button");b.dataset.preset=i;b.textContent=(a.name||("P"+(i+1))).toUpperCase().slice(0,8);b.onclick=()=>usePreset(i);box.appendChild(b)})}
 function markPreset(i){document.querySelectorAll("[data-preset]").forEach(b=>b.classList.toggle("active",Number(b.dataset.preset)===i));const p=document.getElementById("positionPreset");if(p)p.classList.toggle("active",i==="position")}
 function usePreset(i){const a=myPresets[i];if(!a||!Number.isFinite(+a.lat)||!Number.isFinite(+a.lon))return;markPreset(i);setTZ(a.tz||Intl.DateTimeFormat().resolvedOptions().timeZone||"UTC");setStation(+a.lat,+a.lon,a.name||("PRESET "+(i+1)))}
-function renderPresetEditor(){const box=document.getElementById("presetEditor");if(!box)return;box.innerHTML="";myPresets.forEach((a,i)=>{const row=document.createElement("div");row.className="presetedit";row.innerHTML=`<input data-k="name" value="${String(a.name||'').replace(/"/g,'&quot;')}" title="Name"><input data-k="lat" value="${a.lat}" title="Latitude"><input data-k="lon" value="${a.lon}" title="Longitude">`;row.querySelectorAll("input").forEach(inp=>inp.onchange=()=>{const k=inp.dataset.k;myPresets[i][k]=k==='name'?inp.value.trim().toUpperCase().slice(0,8):Number(inp.value);savePresets()});box.appendChild(row)})}
+function esc(s){return String(s??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]))}
+async function lookupICAO(i,code){
+  code=String(code||'').trim().toUpperCase();
+  const msg=document.getElementById('airportResult'+i), btn=document.getElementById('airportFind'+i);
+  if(!/^[A-Z0-9]{4}$/.test(code)){msg.textContent='4-CHAR ICAO REQUIRED';msg.classList.add('err');return}
+  btn.disabled=true;msg.textContent='SEARCHING...';msg.classList.remove('err');
+  try{
+    const r=await fetch('/api/airport?icao='+encodeURIComponent(code),{cache:'no-store'});
+    if(!r.ok)throw Error('ICAO NOT FOUND');
+    const a=await r.json();
+    const la=Number(a.latitude_deg ?? a.latitude ?? a.lat), lo=Number(a.longitude_deg ?? a.longitude ?? a.lon ?? a.lng);
+    if(!Number.isFinite(la)||!Number.isFinite(lo))throw Error('NO COORDINATES');
+    const nm=a.name||a.airport||code, city=a.municipality||a.city||'';
+    myPresets[i]={...myPresets[i],name:code,icao:code,airport:nm,city:city,lat:la,lon:lo};
+    savePresets();
+  }catch(e){msg.textContent=e.message||'LOOKUP FAILED';msg.classList.add('err')}
+  finally{btn.disabled=false}
+}
+function renderPresetEditor(){
+  const box=document.getElementById("presetEditor");if(!box)return;box.innerHTML="";
+  myPresets.forEach((a,i)=>{
+    const row=document.createElement("div");row.className="presetedit";
+    row.innerHTML=`<b>P${i+1}</b><input id="icao${i}" value="${esc(a.icao||a.name||'')}" maxlength="4" placeholder="ICAO" aria-label="Preset ${i+1} ICAO"><button id="airportFind${i}">${(LANG&&LANG[uiLang])?LANG[uiLang].find:'FIND'}</button><span id="airportResult${i}" class="airport-result" title="${esc(a.airport||'')}">${esc(a.airport||((Number.isFinite(+a.lat)&&Number.isFinite(+a.lon))?'SAVED POSITION':'ENTER ICAO'))}</span>`;
+    const inp=row.querySelector('input'),btn=row.querySelector('button');
+    btn.onclick=()=>lookupICAO(i,inp.value);inp.onkeydown=e=>{if(e.key==='Enter')lookupICAO(i,inp.value)};
+    box.appendChild(row)
+  })
+}
 
 let activeTZ=Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
 function setTZ(tz){activeTZ=tz||"UTC";tzname.textContent=activeTZ}
@@ -123,7 +163,7 @@ async function traffic(){
  }finally{requestBusy=false;scheduleTraffic()}
 }
 
-function updateSystemHealth(){const age=lastGood?Date.now()-lastGood:Infinity;const ok=lat!==null&&age<45000;const led=document.getElementById("statusLed");if(led)led.classList.toggle("ok",ok);sys.textContent=ok?"SYSTEM NOMINAL":"SYSTEM DEGRADED";}
+function updateSystemHealth(){const age=lastGood?Date.now()-lastGood:Infinity;const ok=lat!==null&&age<45000;const led=document.getElementById("statusLed");if(led)led.classList.toggle("ok",ok);sys.textContent=ok?((LANG&&LANG[uiLang])?LANG[uiLang].sysok:'SYSTEM NOMINAL'):((LANG&&LANG[uiLang])?LANG[uiLang].sysbad:'SYSTEM DEGRADED');}
 setInterval(updateSystemHealth,1000);
 function scheduleTraffic(delay=pollDelay){
  clearTimeout(pollTimer);clearInterval(countTimer);let left=Math.round(delay/1000);nextRx.textContent=left+"s";
@@ -362,7 +402,7 @@ function drawLedRadar(W,H,d){
   for(const o of rows){const tr=o.tr.trail;if(!tr||tr.length<2)continue;tr.slice(0,-1).forEach((pt,j)=>{const[nm,b]=nav(lat,lon,pt[0],pt[1]);if(nm>range)return;const[tx,ty]=polar(nm,b);fbM.globalAlpha=.35+.45*(j/Math.max(1,tr.length-1));fbM.fillStyle=col;fbM.fillRect(Math.round(tx),Math.round(ty),1,1)});fbM.globalAlpha=1}
   if(rows.length&&fbSelected>=rows.length)fbSelected=0;
   rows.forEach((o,i)=>{const f=o.air,[x,y]=polar(o.nm,o.b),tag=ident(f).slice(0,10),c=activeColor('call');if(i===fbSelected){fbM.globalAlpha=.75+.25*Math.sin(now/200);fbPlane(fbM,x,y,5,+f.track||0,c);fbM.globalAlpha=1}else fbPlane(fbM,x,y,3,+f.track||0,c);const tw=fbMeasure3(tag);let tx=x+5;if(tx+tw>Wm-1)tx=x-5-tw;let ty=y-6;if(ty<1)ty=y+4;fbM.globalAlpha=.82;fbText3(fbM,tag,Math.round(tx),Math.round(ty),c);fbM.globalAlpha=1});
-  const sel=rows[fbSelected];if(sel){const f=sel.air,l1=ident(f),l2=`${sel.nm.toFixed(1)}NM ${altitude(f)}FT`,c=activeColor('call');fbText5(fbM,l1,1,Hm-17,c);fbText5(fbM,l2,1,Hm-9,activeColor('alt'))}
+  const sel=rows[fbSelected];if(sel){const f=sel.air,l1=ident(f),l2=`${sel.nm.toFixed(1)}NM ${altitude(f)==='GND'?'GND':'FL'+altitude(f)}`,c=activeColor('call');fbText5(fbM,l1,1,Hm-17,c);fbText5(fbM,l2,1,Hm-9,activeColor('alt'))}
   fbRenderLeds(W,H,d);
 }
 
@@ -400,7 +440,7 @@ function drawPixelBoard(W,H,d){
     if(origin){fbText3(fbM,`DE: ${origin}`,x+9,yy,activeColor('call'));yy+=6}
     if(destination){fbText3(fbM,`VERS: ${destination}`,x+9,yy,activeColor('call'));yy+=6}
     const ac=[type,reg].filter(Boolean).join(' ');if(ac){fbText3(fbM,ac,x+9,yy,activeColor('type'));yy+=6}
-    fbText5(fbM,`ALT: ${alt}FT`,x+9,yy,activeColor('alt'));yy+=9;
+    fbText5(fbM,`ALT: ${alt==='GND'?'GND':'FL'+alt}`,x+9,yy,activeColor('alt'));yy+=9;
     fbText5(fbM,`VIT: ${spd}KT`,x+9,yy,activeColor('speed'));yy+=9;
     fbText3(fbM,`HDG: ${hdg}  DIST: ${o.nm.toFixed(1)}NM`,x+9,yy,activeColor('hdg'));
 
@@ -414,6 +454,7 @@ function drawPixelBoard(W,H,d){
 function applyDisplayMode(mode){displayMode=['radar','radarwx','ledradar','board'].includes(mode)?mode:'radar';localStorage.setItem('jts_display_mode',displayMode);wxOn=displayMode==='radarwx';radarMode.classList.toggle('active',displayMode==='radar');radarWxMode.classList.toggle('active',displayMode==='radarwx');ledRadarMode.classList.toggle('active',displayMode==='ledradar');boardMode.classList.toggle('active',displayMode==='board');if(wxOn)loadWX();else wxInfo.textContent="NO LAYER";}
 
 function draw(){
+ classicHit=[];
  interpolateTracks();
  if(performance.now()-fbLastCycle>6000){fbSelected++;fbLastCycle=performance.now();}
  const W=C.width,H=C.height,cx=W/2,cy=H/2,R=Math.min(W,H)*.475,d=devicePixelRatio||1;
@@ -423,27 +464,40 @@ function draw(){
  // WX sits beneath the radar symbology.
  drawWX(R,d);
 
- X.strokeStyle=D;X.fillStyle=G;X.lineWidth=Math.max(1,d);
- for(let i=1;i<=4;i++){X.beginPath();X.arc(0,0,R*i/4,0,Math.PI*2);X.stroke();X.font=`${9*d}px Courier New`;X.textAlign="center";X.fillText((range*i/4).toFixed(range<10?1:0),0,-R*i/4+12*d)}
+ X.strokeStyle="rgba(52,150,52,.58)";X.fillStyle=G;X.lineWidth=Math.max(1,d*.72);
+ for(let i=1;i<=4;i++){X.beginPath();X.arc(0,0,R*i/4,0,Math.PI*2);X.stroke();X.font=`${11*d}px Courier New`;X.textAlign="center";X.fillText((range*i/4).toFixed(range<10?1:0),0,-R*i/4+12*d)}
  for(let z=0;z<360;z+=5){let a=rad(z-90),inner=R*(z%30===0?.935:z%10===0?.958:.978);X.beginPath();X.moveTo(Math.cos(a)*inner,Math.sin(a)*inner);X.lineTo(Math.cos(a)*R,Math.sin(a)*R);X.stroke()}
- for(let z=0;z<360;z+=30){let a=rad(z-90);X.beginPath();X.moveTo(Math.cos(a)*R*.12,Math.sin(a)*R*.12);X.lineTo(Math.cos(a)*R*.92,Math.sin(a)*R*.92);X.stroke();X.font=`${10*d}px Courier New`;X.textAlign="center";X.fillText(String(z).padStart(3,"0"),Math.cos(a)*R*.895,Math.sin(a)*R*.895+3*d)}
+ for(let z=0;z<360;z+=30){let a=rad(z-90);X.beginPath();X.moveTo(Math.cos(a)*R*.12,Math.sin(a)*R*.12);X.lineTo(Math.cos(a)*R*.92,Math.sin(a)*R*.92);X.stroke();X.font=`bold ${12*d}px Courier New`;X.textAlign="center";X.fillText(String(z).padStart(3,"0"),Math.cos(a)*R*.895,Math.sin(a)*R*.895+3*d)}
 
  prevSweep=sweep*360;sweep=(sweep+.0030)%1;const sweepDeg=sweep*360,sa=rad(sweepDeg-90);
  let gr=X.createRadialGradient(0,0,0,0,0,R);gr.addColorStop(0,"rgba(114,255,85,.015)");gr.addColorStop(.75,"rgba(114,255,85,.10)");gr.addColorStop(1,"rgba(114,255,85,.34)");
  X.fillStyle=gr;X.beginPath();X.moveTo(0,0);X.arc(0,0,R,sa-.23,sa);X.closePath();X.fill();X.strokeStyle=G;X.beginPath();X.moveTo(0,0);X.lineTo(Math.cos(sa)*R,Math.sin(sa)*R);X.stroke();
- X.beginPath();X.arc(0,0,7*d,0,Math.PI*2);X.moveTo(-13*d,0);X.lineTo(13*d,0);X.moveTo(0,-13*d);X.lineTo(0,13*d);X.stroke();
+ X.strokeStyle=G;X.lineWidth=Math.max(1,d);X.beginPath();X.arc(0,0,7*d,0,Math.PI*2);X.moveTo(-14*d,0);X.lineTo(14*d,0);X.moveTo(0,-14*d);X.lineTo(0,14*d);X.stroke();X.beginPath();X.arc(0,0,2*d,0,Math.PI*2);X.fillStyle=G;X.fill();
 
  if(lat!==null){
    for(const tr of tracks.values()){
      const[nm,b]=nav(lat,lon,tr.lat,tr.lon);if(nm>range)continue;if(crossed(prevSweep,sweepDeg,b))tr.glow=1;
      for(let i=0;i<tr.trail.length;i++){const p=tr.trail[i],[tn,tb]=nav(lat,lon,p[0],p[1]);if(tn>range)continue;const rr=R*tn/range,ang=rad(tb-90),px=Math.cos(ang)*rr,py=Math.sin(ang)*rr,age=nowSec()-p[2],alpha=Math.max(0,.20*(1-age/9));X.fillStyle=`rgba(114,255,85,${alpha})`;X.beginPath();X.arc(px,py,Math.max(1,1.6*d),0,Math.PI*2);X.fill()}
      const rr=R*nm/range,ang=rad(b-90),px=Math.cos(ang)*rr,py=Math.sin(ang)*rr,alpha=.38+.62*tr.glow;
-     X.fillStyle=`rgba(114,255,85,${alpha})`;X.shadowColor=G;X.shadowBlur=(4+11*tr.glow)*d;X.beginPath();X.arc(px,py,(2.7+2*tr.glow)*d,0,Math.PI*2);X.fill();X.shadowBlur=0;
-     const a=tr.air;if(Number.isFinite(+a.track)){const h=rad(+a.track-90);X.strokeStyle=`rgba(114,255,85,${.4+.5*tr.glow})`;X.beginPath();X.moveTo(px,py);X.lineTo(px+Math.cos(h)*28*d,py+Math.sin(h)*28*d);X.stroke()}
-     // V0.11.2 // ADAPTIVE BOARD: labels doubled in size.
-     X.textAlign="left";X.fillStyle=`rgba(114,255,85,${.72+.28*tr.glow})`;X.shadowColor="#000";X.shadowBlur=3*d;X.font=`bold ${18*d}px Courier New`;X.fillText(ident(a),px+10*d,py-8*d);
+     const a=tr.air; const track=Number.isFinite(+a.track)?+a.track:0, h=rad(track-90);
+     X.save();X.translate(px,py);X.rotate(h+Math.PI/2);X.fillStyle=`rgba(114,255,85,${alpha})`;X.strokeStyle=`rgba(114,255,85,${alpha})`;X.shadowColor=G;X.shadowBlur=(4+10*tr.glow)*d;
+     X.beginPath();X.moveTo(0,-7*d);X.lineTo(2*d,-1*d);X.lineTo(8*d,2*d);X.lineTo(8*d,4*d);X.lineTo(2*d,3*d);X.lineTo(1.5*d,7*d);X.lineTo(4*d,9*d);X.lineTo(4*d,10*d);X.lineTo(0,9*d);X.lineTo(-4*d,10*d);X.lineTo(-4*d,9*d);X.lineTo(-1.5*d,7*d);X.lineTo(-2*d,3*d);X.lineTo(-8*d,4*d);X.lineTo(-8*d,2*d);X.lineTo(-2*d,-1*d);X.closePath();X.fill();X.restore();X.shadowBlur=0;
+     if(Number.isFinite(+a.track)){X.strokeStyle=`rgba(114,255,85,${.35+.45*tr.glow})`;X.beginPath();X.moveTo(px+Math.cos(h)*10*d,py+Math.sin(h)*10*d);X.lineTo(px+Math.cos(h)*34*d,py+Math.sin(h)*34*d);X.stroke()}
+     // V1.3H // configurable CLASSIC labels + smart declutter.
+     const idtxt=ident(a), focused=(classicFocus===tr.id && performance.now()<classicFocusUntil);
      const hdg=Number.isFinite(+a.track)?String(Math.round(+a.track)).padStart(3,"0"):"---";
-     X.font=`${16*d}px Courier New`;X.fillText(`${altitude(a)}  ${hdg}  ${nm.toFixed(1)}NM`,px+10*d,py+11*d);X.shadowBlur=0;
+     const altTxt=altitude(a)==="GND"?"GND":"FL"+altitude(a);
+     const spd=Number.isFinite(+a.gs)?Math.round(+a.gs)+"KT":"---KT";
+     const cfg=focused?{call:true,alt:true,speed:true,hdg:true,dist:true,smart:false}:classicCfg;
+     let lines=[]; if(cfg.alt)lines.push(`ALT: ${altTxt}`);if(cfg.speed)lines.push(`VIT: ${spd}`);
+     if(cfg.hdg&&cfg.dist)lines.push(`HDG: ${hdg}  DIST: ${nm.toFixed(1)}NM`);else if(cfg.hdg)lines.push(`HDG: ${hdg}`);else if(cfg.dist)lines.push(`DIST: ${nm.toFixed(1)}NM`);
+     const lx=px+10*d,ly=py-8*d,lineH=17*d,labelW=Math.max(72*d,...([idtxt,...lines].map(t=>t.length*8.5*d))),labelH=(1+lines.length)*lineH;
+     let crowded=false;if(cfg.smart&&!focused){for(const q of classicHit){if(!(lx+labelW<q.x||lx>q.x+q.w||ly+labelH<q.y||ly>q.y+q.h)){crowded=true;break}}}
+     classicHit.push({id:tr.id,x:lx,y:ly-14*d,w:labelW,h:Math.max(24*d,labelH+14*d),px,py});
+     X.textAlign="left";X.fillStyle=`rgba(114,255,85,${.72+.28*tr.glow})`;X.shadowColor="#000";X.shadowBlur=3*d;
+     if(cfg.call){X.font=`bold ${18*d}px Courier New`;X.fillText(idtxt,lx,ly)}
+     if(!crowded||focused){X.font=`${14*d}px Courier New`;let yy=ly+18*d;for(const line of lines){X.fillText(line,lx,yy);yy+=17*d}}
+     X.shadowBlur=0;
    }
  }
  X.restore();requestAnimationFrame(draw);
@@ -457,6 +511,10 @@ function tryGPS(){
   {enableHighAccuracy:true,timeout:10000,maximumAge:30000}
  );
 }
+
+C.addEventListener('pointerdown',e=>{if(displayMode!=='radar'&&displayMode!=='radarwx')return;const r=C.getBoundingClientRect(),sx=C.width/r.width,sy=C.height/r.height,x=(e.clientX-r.left)*sx,y=(e.clientY-r.top)*sy,cx=C.width/2,cy=C.height/2;let best=null,bd=1e9;for(const h of classicHit){const dx=x-(cx+h.px),dy=y-(cy+h.py),dd=dx*dx+dy*dy;if(dd<bd){bd=dd;best=h}}if(best&&bd<(28*(devicePixelRatio||1))**2){classicFocus=best.id;classicFocusUntil=performance.now()+8000}});
+for(const [id,k] of Object.entries({showCall:'call',showAlt:'alt',showSpeed:'speed',showHdg:'hdg',showDist:'dist',smartDeclutter:'smart'})){document.getElementById(id).onchange=e=>{classicCfg[k]=e.target.checked;saveClassicCfg()}}
+document.getElementById('classicMinimal').onclick=()=>classicPreset('minimal');document.getElementById('classicStandard').onclick=()=>classicPreset('standard');document.getElementById('classicFull').onclick=()=>classicPreset('full');syncClassicUI();
 
 setInterval(updateClocks,250);updateClocks();
 
@@ -472,7 +530,7 @@ radarMode.onclick=()=>applyDisplayMode('radar');
 radarWxMode.onclick=()=>applyDisplayMode('radarwx');
 ledRadarMode.onclick=()=>applyDisplayMode('ledradar');
 boardMode.onclick=()=>applyDisplayMode('board');
-setupBtn.onclick=()=>setup.classList.toggle("open");
+setupBtn.onclick=()=>{setup.classList.toggle('open');setupBtn.classList.toggle('open',setup.classList.contains('open'));applyLanguage(uiLang);};
 const ledPitchCtl=document.getElementById('ledPitch'),ledShapeCtl=document.getElementById('ledShape'),ledGlowCtl=document.getElementById('ledGlow'),ledBgCtl=document.getElementById('ledBg'),ledOffCtl=document.getElementById('ledOff');
 ledPitchCtl.value=String(ledPitch); pitchLabel.textContent=String(ledPitch);
 ledShapeCtl.value=ledShape; ledGlowCtl.value=String(ledGlow); glowLabel.textContent=String(ledGlow);
@@ -488,7 +546,19 @@ setTZ(Intl.DateTimeFormat().resolvedOptions().timeZone||"UTC");
 colorPreset.value=presetMode; colCall.value=dataColors.call;colRoute.value=dataColors.route;colType.value=dataColors.type;colAlt.value=dataColors.alt;colSpeed.value=dataColors.speed;colHdg.value=dataColors.hdg;
 colorPreset.onchange=()=>{presetMode=colorPreset.value;localStorage.setItem('jts_color_preset',colorPreset.value)};
 [['colCall','call'],['colRoute','route'],['colType','type'],['colAlt','alt'],['colSpeed','speed'],['colHdg','hdg']].forEach(([id,k])=>document.getElementById(id).oninput=e=>{dataColors[k]=e.target.value;localStorage.setItem('jts_data_colors',JSON.stringify(dataColors));presetMode='multi';colorPreset.value='multi';localStorage.setItem('jts_color_preset','multi')});
+function applyLanguage(l){uiLang=l==='fr'?'fr':'en';localStorage.setItem('jts_lang',uiLang);const t=LANG[uiLang];
+ document.querySelector('.rangebox .k').textContent=t.range;document.querySelector('.displaybox .k').textContent=t.display;document.querySelector('.presetbox .k').textContent=t.presets;
+ const ks=document.querySelectorAll('.timegrid .k');if(ks[0])ks[0].textContent=t.utc;if(ks[1])ks[1].textContent=t.local;
+ setupBtn.textContent=t.setup+' '+(setup.classList.contains('open')?'▲':'▼');document.querySelector('#setup>.k').textContent=t.presetedit;resetPresets.textContent=t.reset;dataColorsTitle.textContent=t.colors;refreshData.textContent=t.refresh;
+ const app=[...document.querySelectorAll('#setup .k')];if(app[1])app[1].textContent=t.appearance;
+ const hp=document.querySelectorAll('.headtech span');const labs=[t.online,t.contacts,t.last,t.source,t.fails,t.next,t.station,t.version];hp.forEach((e,i)=>{const b=e.querySelector('b');if(b)e.childNodes[0].nodeValue=(i===0?'DATA ':labs[i]+' ')});
+ document.querySelectorAll('#presetEditor button').forEach(b=>b.textContent=t.find);renderPresetButtons();
+ langEN.classList.toggle('active',uiLang==='en');langFR.classList.toggle('active',uiLang==='fr');updateSystemHealth();
+}
+langEN.onclick=()=>applyLanguage('en');langFR.onclick=()=>applyLanguage('fr');
+
 applyDisplayMode(displayMode);
+applyLanguage(uiLang);
 tryGPS();
 draw();
 </script>

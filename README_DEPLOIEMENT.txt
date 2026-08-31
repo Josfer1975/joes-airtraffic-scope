@@ -1,10 +1,11 @@
-JOE'S TRAFFIC SCOPE // JTS-01 V1.3 WEB
+JOE'S TRAFFIC SCOPE — JTS-01 V1.3H WEB
 
-Refonte interface responsive :
-- ordre : Radar/Board > Range > Display > Presets > UTC/Local > Setup > Status
-- Display : Classic / Classic + WX / LED Radar / LED Board
-- Presets : Position GPS + 3 presets personnalisables (localStorage)
-- voyant systeme vert/rouge base sur la reception ADS-B recente
-- fonctions Netlify ADS-B et RainViewer conservees
+SOURCE DE REFERENCE : V1.3H TEST LOCAL FLAGS approuvee.
+L'index.html est une copie stricte de la version locale validee : interface, langues, drapeaux, reglages, presets, radar et board inchanges.
+Seul le backend Python local est remplace par 3 Netlify Functions equivalentes : traffic, wx-tile et airport.
 
-Deploiement : remplacer les fichiers du depot GitHub main. Netlify redeploie automatiquement.
+DEPLOIEMENT GITHUB / NETLIFY
+1. Envoyer LE CONTENU de ce dossier a la racine du depot GitHub.
+2. Commit directement sur main.
+3. Netlify redeploie automatiquement.
+4. Sur mobile, effectuer un rechargement force si une ancienne version reste en cache.
