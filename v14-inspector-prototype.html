@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JTS-01 V1.4 Inspector Prototype</title>
+<style>
+html,body{margin:0;width:100%;height:100%;background:#000700;color:#72ff55;font-family:"Courier New",monospace;overflow:hidden}
+#jts{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000700}
+#inspector{position:fixed;right:18px;bottom:18px;width:min(390px,calc(100vw - 36px));background:rgba(0,10,0,.96);border:1px solid #1b661b;box-shadow:0 0 28px rgba(114,255,85,.18),inset 0 0 22px rgba(25,130,25,.14);z-index:50;display:none}
+#inspector.open{display:block}
+#inspector header{display:flex;align-items:center;justify-content:space-between;padding:9px 11px;border-bottom:1px solid #1b661b;font-weight:900;letter-spacing:.8px;text-shadow:0 0 7px #72ff55}
+#inspector button{font:inherit;color:#72ff55;background:#001000;border:1px solid #1b661b;padding:4px 8px;cursor:pointer}
+#body{padding:11px}
+.call{font-size:24px;font-weight:900;margin-bottom:3px}.route{font-size:18px;color:#62b8ff;margin-bottom:10px}.grid{display:grid;grid-template-columns:108px 1fr;gap:5px 10px;font-size:13px;line-height:1.35}.k{color:#4acb3d}.v{color:#c8ffc0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hint{position:fixed;left:12px;bottom:10px;z-index:45;background:rgba(0,10,0,.8);border:1px solid #1b661b;padding:6px 9px;font-size:10px;pointer-events:none}
+@media(max-width:600px){#inspector{left:8px;right:8px;bottom:8px;width:auto}.grid{grid-template-columns:92px 1fr}.call{font-size:20px}}
+</style>
+</head>
+<body>
+<iframe id="jts" src="/"></iframe>
+<div class="hint">V1.4 PROTOTYPE // CLICK AN AIRCRAFT IN CLASSIC / CLASSIC+WX</div>
+<section id="inspector" aria-live="polite">
+<header><span>AIRCRAFT INSPECTOR</span><button id="close">X</button></header>
+<div id="body"></div>
+</section>
+<script>
+const frame=document.getElementById('jts'),panel=document.getElementById('inspector'),body=document.getElementById('body');
+const clean=v=>String(v??'').trim();
+const val=(v,fallback='---')=>clean(v)||fallback;
+const esc=s=>String(s??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));
+function aircraftHTML(tr){
+ const a=tr?.air||{};
+ let nm='---';try{const p=frame.contentWindow.eval(`nav(lat,lon,${Number(tr.lat)},${Number(tr.lon)})`);if(Array.isArray(p)&&Number.isFinite(+p[0]))nm=(+p[0]).toFixed(1)+' NM'}catch(_e){}
+ const call=val(a.flight||a.r||a.hex,'UNKNOWN');
+ const reg=val(a.r||a.reg||a.registration);
+ const type=val(a.t||a.type||a.aircraft_type);
+ const operator=val(a.airline||a.operator);
+ const route=val(a.route||a.flight_route,'ROUTE UNKNOWN');
+ const alt=a.alt_baro==='ground'?'GND':Number.isFinite(+(a.alt_baro??a.alt_geom))?Math.round(+(a.alt_baro??a.alt_geom))+' FT':'---';
+ const speed=Number.isFinite(+a.gs)?Math.round(+a.gs)+' KT':'---';
+ const hdg=Number.isFinite(+a.track)?String(Math.round(+a.track)).padStart(3,'0')+'°':'---';
+ return `<div class="call">${esc(call)}</div><div class="route">${esc(route)}</div><div class="grid">
+ <div class="k">REGISTRATION</div><div class="v">${esc(reg)}</div>
+ <div class="k">TYPE</div><div class="v">${esc(type)}</div>
+ <div class="k">OPERATOR</div><div class="v">${esc(operator)}</div>
+ <div class="k">ALTITUDE</div><div class="v">${esc(alt)}</div>
+ <div class="k">SPEED</div><div class="v">${esc(speed)}</div>
+ <div class="k">HEADING</div><div class="v">${esc(hdg)}</div>
+ <div class="k">DISTANCE</div><div class="v">${esc(nm)}</div>
+ <div class="k">HEX</div><div class="v">${esc(val(a.hex))}</div>
+ </div>`;
+}
+function install(){
+ let w,doc,canvas;try{w=frame.contentWindow;doc=w.document;canvas=doc.getElementById('scope')}catch(_e){return}
+ if(!canvas||canvas.dataset.v14Inspector)return;canvas.dataset.v14Inspector='1';
+ canvas.addEventListener('pointerup',e=>{
+   let mode='';try{mode=w.eval('displayMode')}catch(_e){}
+   if(mode!=='radar'&&mode!=='radarwx')return;
+   const r=canvas.getBoundingClientRect(),sx=canvas.width/r.width,sy=canvas.height/r.height,x=(e.clientX-r.left)*sx,y=(e.clientY-r.top)*sy,cx=canvas.width/2,cy=canvas.height/2;
+   let hits=[],map;try{hits=w.eval('classicHit');map=w.eval('tracks')}catch(_e){return}
+   let best=null,bd=Infinity;for(const h of hits||[]){const dx=x-(cx+h.px),dy=y-(cy+h.py),dd=dx*dx+dy*dy;if(dd<bd){bd=dd;best=h}}
+   const max=(34*(w.devicePixelRatio||1))**2;if(!best||bd>max)return;
+   const tr=map.get(best.id);if(!tr)return;body.innerHTML=aircraftHTML(tr);panel.classList.add('open');
+ },true);
+}
+frame.addEventListener('load',()=>{setTimeout(install,500);setTimeout(install,1800)});
+setInterval(install,2500);
+document.getElementById('close').onclick=()=>panel.classList.remove('open');
+</script>
+</body>
+</html>
