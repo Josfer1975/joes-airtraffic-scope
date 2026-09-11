@@ -1,4 +1,4 @@
-const CACHE='jts-shell-v14-aircraft-intelligence';
+const CACHE='jts-shell-v14-aircraft-intelligence-r2';
 const SHELL=['/','/index.html','/manifest.webmanifest','/v14-aircraft-intelligence.js'];
 const AI_SCRIPT='<script src="/v14-aircraft-intelligence.js?v=1"></script>';
 function injectAI(text){return text.includes('/v14-aircraft-intelligence.js')?text:text.replace('</body>',AI_SCRIPT+'</body>')}
@@ -7,7 +7,7 @@ self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise
 self.addEventListener('fetch',e=>{
  const u=new URL(e.request.url);
  if(u.pathname.startsWith('/api/'))return;
- if(e.request.mode==='navigate'||u.pathname==='/'||u.pathname==='/index.html'){
+ if(u.pathname==='/'||u.pathname==='/index.html'){
   e.respondWith(fetch(e.request).then(async r=>{
    if(!r.ok)return r;
    const text=injectAI(await r.text());
