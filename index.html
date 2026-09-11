@@ -26,7 +26,7 @@ h1{font-size:clamp(14px,1.7vw,23px);margin:1px;text-align:center;text-shadow:0 0
 <div id="app">
 <main class="scope"><canvas id="scope"></canvas></main>
 <aside class="panel">
-<div class="head"><h1>JOE'S TRAFFIC SCOPE</h1><div class="sub">JTS-01 // LIVE ADS-B + WX // V1.3H</div><div class="headstatus sm"><div class="statusline"><span id="statusLed" class="status-led"></span><span id="sys" class="status-main">SYSTEM INITIALIZING</span></div><div class="headtech status-detail"><span>DATA <b id="link">STANDBY</b></span><span>CONTACTS <b id="contacts">00</b></span><span>LAST RX <b id="last">--</b></span><span>SOURCE <b id="apiDiag">--</b></span><span>FAILS <b id="fails">0</b></span><span>NEXT <b id="nextRx">15s</b></span><span>STATION <b id="station">ACQUIRING...</b></span><span>VERSION <b>V1.3H</b></span></div><button id="refreshData" class="headrefresh">REFRESH DATA</button><div class="langswitch" title="Language / Langue"><button id="langEN" class="active" aria-label="English" title="English">🇬🇧 <span>EN</span></button><button id="langFR" aria-label="Français" title="Français">🇫🇷 <span>FR</span></button></div></div></div>
+<div class="head"><h1>JOE'S TRAFFIC SCOPE</h1><div class="sub">JTS-01 // LIVE ADS-B + WX // V1.3H-R</div><div class="headstatus sm"><div class="statusline"><span id="statusLed" class="status-led"></span><span id="sys" class="status-main">SYSTEM INITIALIZING</span></div><div class="headtech status-detail"><span>DATA <b id="link">STANDBY</b></span><span>CONTACTS <b id="contacts">00</b></span><span>LAST RX <b id="last">--</b></span><span>SOURCE <b id="apiDiag">--</b></span><span>FAILS <b id="fails">0</b></span><span>NEXT <b id="nextRx">15s</b></span><span>STATION <b id="station">ACQUIRING...</b></span><span>VERSION <b>V1.3H-R</b></span></div><button id="refreshData" class="headrefresh">REFRESH DATA</button><div class="langswitch" title="Language / Langue"><button id="langEN" class="active" aria-label="English" title="English">🇬🇧 <span>EN</span></button><button id="langFR" aria-label="Français" title="Français">🇫🇷 <span>FR</span></button></div></div></div>
 <div class="b rangebox"><div class="k">RANGE</div><div class="v"><span id="rangev">20</span> NM</div><div class="ranges"><button data-r="5">05</button><button data-r="10">10</button><button class="on" data-r="20">20</button><button data-r="40">40</button><button data-r="80">80</button></div></div>
 <div class="b displaybox"><div class="k">DISPLAY</div><div class="displaymode"><button id="radarMode" class="active">CLASSIC</button><button id="radarWxMode">CLASSIC + WX</button><button id="ledRadarMode">LED RADAR</button><button id="boardMode">LED BOARD</button></div></div>
 <div class="b presetbox"><div class="k">PRESETS</div><div class="presets" id="presetButtons"><button id="positionPreset">MY POSITION</button></div></div>
@@ -50,7 +50,6 @@ let classicHit=[],classicFocus=null,classicFocusUntil=0;
 function saveClassicCfg(){localStorage.setItem("jts_classic_data",JSON.stringify(classicCfg));syncClassicUI()}
 function classicPreset(kind){if(kind==='minimal')classicCfg={...classicCfg,call:true,alt:false,speed:false,hdg:false,dist:false};else if(kind==='standard')classicCfg={...classicCfg,call:true,alt:true,speed:false,hdg:false,dist:true};else classicCfg={...classicCfg,call:true,alt:true,speed:true,hdg:true,dist:true};saveClassicCfg()}
 function syncClassicUI(){const ids={showCall:'call',showAlt:'alt',showSpeed:'speed',showHdg:'hdg',showDist:'dist',smartDeclutter:'smart'};for(const [id,k] of Object.entries(ids)){const e=document.getElementById(id);if(e)e.checked=!!classicCfg[k]} const eq=(a,b)=>a.every(k=>!!classicCfg[k]===b[k]);document.getElementById('classicMinimal')?.classList.toggle('active',eq(['call','alt','speed','hdg','dist'],{call:1,alt:0,speed:0,hdg:0,dist:0}));document.getElementById('classicStandard')?.classList.toggle('active',eq(['call','alt','speed','hdg','dist'],{call:1,alt:1,speed:0,hdg:0,dist:1}));document.getElementById('classicFull')?.classList.toggle('active',eq(['call','alt','speed','hdg','dist'],{call:1,alt:1,speed:1,hdg:1,dist:1}))}
-
 const LANG={
  en:{range:'RANGE',display:'DISPLAY',presets:'PRESETS',mypos:'MY POSITION',utc:'UTC',local:'LOCAL TIME',setup:'SETUP',presetedit:'MY PRESETS — EDIT',reset:'RESET PRESETS',appearance:'DISPLAY APPEARANCE',colors:'DATA COLORS — ONLY FOR [LED BOARD]',refresh:'REFRESH DATA',sysok:'SYSTEM NOMINAL',sysbad:'SYSTEM DEGRADED',online:'ONLINE',standby:'STANDBY',contacts:'CONTACTS',last:'LAST RX',source:'SOURCE',fails:'FAILS',next:'NEXT',station:'STATION',version:'VERSION',find:'FIND'},
  fr:{range:'PORTÉE',display:'AFFICHAGE',presets:'PRÉRÉGLAGES',mypos:'MA POSITION',utc:'UTC',local:'HEURE LOCALE',setup:'RÉGLAGES',presetedit:'MES PRÉRÉGLAGES — ÉDITER',reset:'RÉINITIALISER LES PRÉRÉGLAGES',appearance:"APPARENCE DE L’AFFICHAGE",colors:'COULEURS DES DONNÉES — UNIQUEMENT POUR [LED BOARD]',refresh:'RAFRAÎCHIR LES DONNÉES',sysok:'SYSTÈME NOMINAL',sysbad:'SYSTÈME DÉGRADÉ',online:'EN LIGNE',standby:'EN ATTENTE',contacts:'CONTACTS',last:'DERNIÈRE RX',source:'SOURCE',fails:'ÉCHECS',next:'PROCHAINE RX',station:'STATION',version:'VERSION',find:'CHERCHER'}
@@ -60,6 +59,55 @@ let uiLang=localStorage.getItem('jts_lang')||'en';
 let dataColors={call:'#c8c8c8',route:'#4aa8ff',type:'#ff3030',alt:'#48ff72',speed:'#58d98e',hdg:'#ffb02e'};
 function activeColor(key){if(presetMode==='mono')return G;if(presetMode==='amber')return '#ffb02e';if(presetMode==='atc'){const m={call:'#ffffff',route:'#62b8ff',type:'#bfc7c9',alt:'#63ff83',speed:'#63ff83',hdg:'#ffd15c'};return m[key]||G;}return dataColors[key]||G;}
 const tracks=new Map(),rad=d=>d*Math.PI/180,nowSec=()=>performance.now()/1000;
+
+// V1.3H-R // Optional ADSBdb enrichment for LED BOARD only.
+// Traffic rendering remains untouched; route/aircraft metadata is fetched lazily
+// when LED BOARD is active, then kept on the track object.
+const boardEnrichCache=new Map(),boardEnrichPending=new Set();
+let boardEnrichActive=0;
+const BOARD_ENRICH_MAX=4,boardEnrichQueue=[];
+function boardCallsign(a){return String(a?.flight||'').trim().toUpperCase()}
+function boardHex(a){return String(a?.hex||'').replace(/^~/,'').trim().toUpperCase()}
+function applyBoardEnrichment(tr,d){
+ if(!tr||!d||d.found===false)return;
+ const a=tr.air||{};
+ if(d.route)a.route=d.route;
+ if(d.origin?.display)a.origin=d.origin.display;
+ if(d.destination?.display)a.destination=d.destination.display;
+ if(d.airline?.name)a.airline=d.airline.name;
+ if(d.aircraft?.type&&!a.t&&!a.type)a.type=d.aircraft.type;
+ if(d.aircraft?.icao_type&&!a.t&&!a.aircraft_type)a.aircraft_type=d.aircraft.icao_type;
+ if(d.aircraft?.registration&&!a.r&&!a.reg)a.reg=d.aircraft.registration;
+ if(d.aircraft?.photo)a.photo=d.aircraft.photo;
+ if(d.aircraft?.thumbnail)a.photo_thumbnail=d.aircraft.thumbnail;
+ a._jts_enrich_source=d.source||'ADSBDB';
+ tr.air=a;
+}
+function runBoardEnrichQueue(){
+ while(boardEnrichActive<BOARD_ENRICH_MAX&&boardEnrichQueue.length){
+  const job=boardEnrichQueue.shift();boardEnrichActive++;
+  job().finally(()=>{boardEnrichActive--;runBoardEnrichQueue()});
+ }
+}
+function queueBoardEnrich(tr){
+ if(displayMode!=='board'||!tr)return;
+ const a=tr.air||{},call=boardCallsign(a),hex=boardHex(a);
+ if(!call&&!hex)return;
+ const key=`${hex}|${call}`;
+ if(boardEnrichCache.has(key)){applyBoardEnrichment(tr,boardEnrichCache.get(key));return}
+ if(boardEnrichPending.has(key))return;
+ boardEnrichPending.add(key);
+ boardEnrichQueue.push(async()=>{
+  try{
+   const q=new URLSearchParams();if(hex)q.set('hex',hex);if(call)q.set('callsign',call);
+   const r=await fetch('/api/enrich?'+q.toString(),{cache:'default'}),d=await r.json();
+   if(r.ok){boardEnrichCache.set(key,d);applyBoardEnrichment(tr,d)}
+  }catch(_e){}finally{boardEnrichPending.delete(key)}
+ });
+ runBoardEnrichQueue();
+}
+function enrichVisibleBoardTracks(){if(displayMode!=='board')return;for(const tr of tracks.values())queueBoardEnrich(tr)}
+
 const DEFAULT_PRESETS=[
   {name:"LFPG",icao:"LFPG",airport:"Paris Charles de Gaulle",lat:49.0097,lon:2.5479,tz:"Europe/Paris"},
   {name:"EGLL",icao:"EGLL",airport:"London Heathrow",lat:51.4700,lon:-0.4543,tz:"Europe/London"},
@@ -69,499 +117,65 @@ function loadPresets(){try{const x=JSON.parse(localStorage.getItem("jts_my_prese
 let myPresets=loadPresets();
 function savePresets(){localStorage.setItem("jts_my_presets",JSON.stringify(myPresets));renderPresetButtons();renderPresetEditor()}
 function renderPresetButtons(){const box=document.getElementById("presetButtons");if(!box)return;box.innerHTML='<button id="positionPreset">'+((LANG&&LANG[uiLang])?LANG[uiLang].mypos:'MY POSITION')+'</button>';document.getElementById("positionPreset").onclick=()=>{markPreset("position");tryGPS()};myPresets.forEach((a,i)=>{const b=document.createElement("button");b.dataset.preset=i;b.textContent=(a.name||("P"+(i+1))).toUpperCase().slice(0,8);b.onclick=()=>usePreset(i);box.appendChild(b)})}
-function markPreset(i){document.querySelectorAll("[data-preset]").forEach(b=>b.classList.toggle("active",Number(b.dataset.preset)===i));const p=document.getElementById("positionPreset");if(p)p.classList.toggle("active",i==="position")}
-function usePreset(i){const a=myPresets[i];if(!a||!Number.isFinite(+a.lat)||!Number.isFinite(+a.lon))return;markPreset(i);setTZ(a.tz||Intl.DateTimeFormat().resolvedOptions().timeZone||"UTC");setStation(+a.lat,+a.lon,a.name||("PRESET "+(i+1)))}
-function esc(s){return String(s??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]))}
-async function lookupICAO(i,code){
-  code=String(code||'').trim().toUpperCase();
-  const msg=document.getElementById('airportResult'+i), btn=document.getElementById('airportFind'+i);
-  if(!/^[A-Z0-9]{4}$/.test(code)){msg.textContent='4-CHAR ICAO REQUIRED';msg.classList.add('err');return}
-  btn.disabled=true;msg.textContent='SEARCHING...';msg.classList.remove('err');
-  try{
-    const r=await fetch('/api/airport?icao='+encodeURIComponent(code),{cache:'no-store'});
-    if(!r.ok)throw Error('ICAO NOT FOUND');
-    const a=await r.json();
-    const la=Number(a.latitude_deg ?? a.latitude ?? a.lat), lo=Number(a.longitude_deg ?? a.longitude ?? a.lon ?? a.lng);
-    if(!Number.isFinite(la)||!Number.isFinite(lo))throw Error('NO COORDINATES');
-    const nm=a.name||a.airport||code, city=a.municipality||a.city||'';
-    myPresets[i]={...myPresets[i],name:code,icao:code,airport:nm,city:city,lat:la,lon:lo};
-    savePresets();
-  }catch(e){msg.textContent=e.message||'LOOKUP FAILED';msg.classList.add('err')}
-  finally{btn.disabled=false}
-}
-function renderPresetEditor(){
-  const box=document.getElementById("presetEditor");if(!box)return;box.innerHTML="";
-  myPresets.forEach((a,i)=>{
-    const row=document.createElement("div");row.className="presetedit";
-    row.innerHTML=`<b>P${i+1}</b><input id="icao${i}" value="${esc(a.icao||a.name||'')}" maxlength="4" placeholder="ICAO" aria-label="Preset ${i+1} ICAO"><button id="airportFind${i}">${(LANG&&LANG[uiLang])?LANG[uiLang].find:'FIND'}</button><span id="airportResult${i}" class="airport-result" title="${esc(a.airport||'')}">${esc(a.airport||((Number.isFinite(+a.lat)&&Number.isFinite(+a.lon))?'SAVED POSITION':'ENTER ICAO'))}</span>`;
-    const inp=row.querySelector('input'),btn=row.querySelector('button');
-    btn.onclick=()=>lookupICAO(i,inp.value);inp.onkeydown=e=>{if(e.key==='Enter')lookupICAO(i,inp.value)};
-    box.appendChild(row)
-  })
-}
+function renderPresetEditor(){const box=document.getElementById("presetEditor");if(!box)return;box.innerHTML="";myPresets.forEach((p,i)=>{const row=document.createElement("div");row.className="presetedit";row.innerHTML=`<span>P${i+1}</span><input maxlength="8" value="${esc(p.name||'')}" data-k="name"><input maxlength="4" value="${esc(p.icao||'')}" data-k="icao"><button>FIND</button><div></div><input value="${esc(p.lat??'')}" data-k="lat" placeholder="LAT"><input value="${esc(p.lon??'')}" data-k="lon" placeholder="LON"><span class="airport-result">${esc(p.airport||'')}</span>`;const inputs=row.querySelectorAll('input');inputs.forEach(inp=>inp.onchange=()=>{const k=inp.dataset.k;if(k==='lat'||k==='lon')myPresets[i][k]=Number(inp.value);else myPresets[i][k]=inp.value.toUpperCase();savePresets()});row.querySelector('button').onclick=()=>lookupAirport(i,row);box.appendChild(row)})}
+function esc(s){return String(s).replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]))}
+async function lookupAirport(i,row){const code=(myPresets[i].icao||'').trim().toUpperCase(),out=row.querySelector('.airport-result');if(!code){out.textContent='ICAO?';out.className='airport-result err';return}out.textContent='SEARCH...';out.className='airport-result';try{const r=await fetch('/api/airport?icao='+encodeURIComponent(code),{cache:'no-store'}),d=await r.json();if(!r.ok||d.error)throw new Error(d.error||'not found');myPresets[i]={...myPresets[i],icao:d.icao||code,name:d.icao||code,airport:d.name||'',lat:+d.lat,lon:+d.lon,tz:d.tz||'UTC'};savePresets()}catch(e){out.textContent='NOT FOUND';out.className='airport-result err'}}
+function usePreset(i){const p=myPresets[i];if(!p)return;markPreset(String(i));setTZ(p.tz||'UTC');setStation(+p.lat,+p.lon,p.icao||p.name||'PRESET')}
+function markPreset(v){document.querySelectorAll('[data-preset],#positionPreset').forEach(b=>b.classList.remove('on'));if(v==='position')document.getElementById('positionPreset')?.classList.add('on');else document.querySelector(`[data-preset="${v}"]`)?.classList.add('on')}
 
-let activeTZ=Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
-function setTZ(tz){activeTZ=tz||"UTC";tzname.textContent=activeTZ}
-function updateClocks(){
-  const n=new Date();
-  utc.textContent=n.toISOString().slice(11,19);
-  try{
-    localtime.textContent=new Intl.DateTimeFormat("fr-FR",{timeZone:activeTZ,hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).format(n);
-  }catch(e){localtime.textContent="--:--:--"}
-}
-
-function resize(){const r=C.getBoundingClientRect(),d=devicePixelRatio||1;C.width=Math.round(r.width*d);C.height=Math.round(r.height*d)}
-addEventListener("resize",resize);resize();
-
-function nav(a,b,c,d){
- const R=3440.065,p1=rad(a),p2=rad(c),dp=rad(c-a),dl=rad(d-b);
- const q=Math.sin(dp/2)**2+Math.cos(p1)*Math.cos(p2)*Math.sin(dl/2)**2;
- return [R*2*Math.atan2(Math.sqrt(q),Math.sqrt(1-q)),
- (Math.atan2(Math.sin(dl)*Math.cos(p2),Math.cos(p1)*Math.sin(p2)-Math.sin(p1)*Math.cos(p2)*Math.cos(dl))*180/Math.PI+360)%360];
-}
+let tz=Intl.DateTimeFormat().resolvedOptions().timeZone||"UTC";
+function setTZ(z){tz=z||"UTC";tzname.textContent=tz}
+function updateClocks(){const n=new Date();utc.textContent=n.toLocaleTimeString("en-GB",{timeZone:"UTC",hour12:false});try{localtime.textContent=n.toLocaleTimeString("en-GB",{timeZone:tz,hour12:false})}catch{localtime.textContent=n.toLocaleTimeString("en-GB",{hour12:false})}}
+function nav(a,b,c,d){const R=3440.065,p1=rad(a),p2=rad(c),dp=rad(c-a),dl=rad(d-b),h=Math.sin(dp/2)**2+Math.cos(p1)*Math.cos(p2)*Math.sin(dl/2)**2,dist=2*R*Math.asin(Math.sqrt(h)),y=Math.sin(dl)*Math.cos(p2),x=Math.cos(p1)*Math.sin(p2)-Math.sin(p1)*Math.cos(p2)*Math.cos(dl),br=(Math.atan2(y,x)*180/Math.PI+360)%360;return[dist,br]}
+function altitude(a){const z=a.alt_baro??a.alt_geom;if(z==="ground")return"GND";return Number.isFinite(+z)?String(Math.round(+z/100)).padStart(3,"0"):"---"}
 function ident(a){return String(a.flight||a.r||a.hex||"UNKNOWN").trim()}
-function altitude(a){let v=a.alt_baro??a.alt_geom;if(v==="ground")return"GND";return Number.isFinite(+v)?String(Math.round(+v/100)).padStart(3,"0"):"---"}
-
-function setStation(a,b,m){
- lat=a;lon=b;localStorage.setItem("jts_lat",a);localStorage.setItem("jts_lon",b);
- station.textContent=`${m} • ${a.toFixed(4)}N ${b>=0?"+":""}${b.toFixed(4)}E`;
- traffic(); if(wxOn)loadWX();
-}
-
-function updateTracks(list){
- const t=nowSec();
- for(const a of list){
-   if(!Number.isFinite(a.lat)||!Number.isFinite(a.lon))continue;
-   const id=String(a.hex||a.r||a.flight||Math.random()).trim();
-   let tr=tracks.get(id);
-   if(!tr){
-     tr={id,fromLat:a.lat,fromLon:a.lon,toLat:a.lat,toLon:a.lon,lat:a.lat,lon:a.lon,t0:t,t1:t+5,air:a,trail:[],glow:0,lastSeen:t};
-     tracks.set(id,tr);
-   }else{
-     tr.fromLat=tr.lat;tr.fromLon=tr.lon;tr.toLat=a.lat;tr.toLon=a.lon;tr.t0=t;tr.t1=t+5;tr.air=a;tr.lastSeen=t;
-   }
- }
- for(const [id,tr] of tracks)if(t-tr.lastSeen>180)tracks.delete(id);
-}
-async function traffic(){
- if(lat===null||requestBusy)return;
- requestBusy=true;
+function updateSystemHealth(){const ok=lastGood>0&&Date.now()-lastGood<45000;statusLed.classList.toggle('ok',ok);sys.textContent=ok?(LANG[uiLang]?.sysok||'SYSTEM NOMINAL'):(LANG[uiLang]?.sysbad||'SYSTEM DEGRADED')}
+function setStation(a,b,name){lat=a;lon=b;localStorage.setItem("jts_lat",lat);localStorage.setItem("jts_lon",lon);station.textContent=`${name} ${lat.toFixed(3)}, ${lon.toFixed(3)}`;traffic();if(wxOn)loadWX()}
+function scheduleTraffic(ms){clearTimeout(pollTimer);pollDelay=ms;let left=Math.ceil(ms/1000);nextRx.textContent=left+'s';clearInterval(countTimer);countTimer=setInterval(()=>{left=Math.max(0,left-1);nextRx.textContent=left+'s';if(left<=0)clearInterval(countTimer)},1000);pollTimer=setTimeout(traffic,ms)}
+function forceTraffic(){clearTimeout(pollTimer);clearInterval(countTimer);traffic(true)}
+async function traffic(force=false){
+ if(requestBusy||lat===null)return;if(force)failCount=0;requestBusy=true;link.textContent="RX";
  try{
   const r=await fetch(`/api/traffic?lat=${lat}&lon=${lon}&radius=${range}`,{cache:"no-store"}),j=await r.json();
-  if(!r.ok)throw Error(j.error||r.status);
-  const rawAc=Array.isArray(j.ac)?j.ac:[];
-  const list=rawAc.filter(a=>Number.isFinite(a.lat)&&Number.isFinite(a.lon));
-  const dg=j._jts_diag||{};
-  apiDiag.textContent=`${dg.source||dg.endpoint||"?"} AC:${rawAc.length} POS:${list.length}`;
-  if(list.length>0) updateTracks(list);
-  contacts.textContent=String(list.length).padStart(2,"0");
-  link.textContent="ONLINE";lastGood=Date.now();last.textContent=new Date().toISOString().slice(11,19);pollDelay=15000;updateSystemHealth();
- }catch(e){
-  failCount++;fails.textContent=failCount;const age=lastGood?Date.now()-lastGood:Infinity;
-  link.textContent=age<45000?"HOLD":"RECONNECTING";updateSystemHealth();
-  pollDelay=pollDelay<=15000?30000:60000;
- }finally{requestBusy=false;scheduleTraffic()}
+  if(!r.ok||!Array.isArray(j.ac))throw new Error(j.error||`HTTP ${r.status}`);
+  const t=nowSec(),seen=new Set();for(const a of j.ac){if(!Number.isFinite(+a.lat)||!Number.isFinite(+a.lon))continue;const id=String(a.hex||a.flight||Math.random()).trim();seen.add(id);let tr=tracks.get(id);if(!tr){tr={id,lat:+a.lat,lon:+a.lon,air:a,seen:t,glow:0,trail:[]};tracks.set(id,tr)}else{tr.lat=+a.lat;tr.lon=+a.lon;tr.air=a;tr.seen=t}tr.trail.push([tr.lat,tr.lon,t]);while(tr.trail.length&&t-tr.trail[0][2]>10)tr.trail.shift()}
+  for(const[k,tr]of tracks)if(t-tr.seen>180)tracks.delete(k);
+  contacts.textContent=String(j.ac.length).padStart(2,"0");last.textContent=new Date().toLocaleTimeString("en-GB",{hour12:false});lastGood=Date.now();failCount=0;fails.textContent='0';apiDiag.textContent=j._jts_diag?.source||"LIVE";link.textContent="ONLINE";updateSystemHealth();enrichVisibleBoardTracks();scheduleTraffic(15000)
+ }catch(e){failCount++;fails.textContent=failCount;link.textContent="HOLD";apiDiag.textContent="RETRY";updateSystemHealth();scheduleTraffic(failCount===1?30000:60000)}finally{requestBusy=false}
 }
 
-function updateSystemHealth(){const age=lastGood?Date.now()-lastGood:Infinity;const ok=lat!==null&&age<45000;const led=document.getElementById("statusLed");if(led)led.classList.toggle("ok",ok);sys.textContent=ok?((LANG&&LANG[uiLang])?LANG[uiLang].sysok:'SYSTEM NOMINAL'):((LANG&&LANG[uiLang])?LANG[uiLang].sysbad:'SYSTEM DEGRADED');}
-setInterval(updateSystemHealth,1000);
-function scheduleTraffic(delay=pollDelay){
- clearTimeout(pollTimer);clearInterval(countTimer);let left=Math.round(delay/1000);nextRx.textContent=left+"s";
- countTimer=setInterval(()=>{left=Math.max(0,left-1);nextRx.textContent=left+"s";if(!left)clearInterval(countTimer)},1000);
- pollTimer=setTimeout(()=>traffic(),delay)
-}
-function forceTraffic(){clearTimeout(pollTimer);clearInterval(countTimer);nextRx.textContent="NOW";traffic()}
+function crossed(a,b,x){return a<=b?(x>=a&&x<b):(x>=a||x<b)}
+function applyDisplayMode(m){displayMode=m;localStorage.setItem('jts_display_mode',m);wxOn=m==='radarwx';radarMode.classList.toggle('active',m==='radar');radarWxMode.classList.toggle('active',m==='radarwx');ledRadarMode.classList.toggle('active',m==='ledradar');boardMode.classList.toggle('active',m==='board');if(wxOn)loadWX();if(m==='board')enrichVisibleBoardTracks();}
+
 function wxZoom(){return 7}
-async function loadWX(){
- if(!wxOn||lat===null||wxLoading)return;
- wxLoading=true;wxInfo.textContent="LOADING...";
- try{
-   const z=wxZoom(),r=await fetch(`/api/wx/tile?lat=${lat}&lon=${lon}&z=${z}`,{cache:"no-store"});
-   if(!r.ok)throw Error("WX "+r.status);
-   wxFrameTime=r.headers.get("X-WX-Time");
-   const blob=await r.blob(),url=URL.createObjectURL(blob),img=new Image();
-   await new Promise((ok,no)=>{img.onload=ok;img.onerror=no;img.src=url});
-   const oc=document.createElement("canvas");oc.width=512;oc.height=512;const ox=oc.getContext("2d",{willReadFrequently:true});
-   ox.drawImage(img,0,0,512,512);URL.revokeObjectURL(url);
-   const im=ox.getImageData(0,0,512,512),p=im.data;
-   // V0.11.2 // ADAPTIVE BOARD: suppress the weak/background WX wash. Only meaningful echoes remain.
-   for(let i=0;i<p.length;i+=4){
-     const a=p[i+3], mx=Math.max(p[i],p[i+1],p[i+2]), mn=Math.min(p[i],p[i+1],p[i+2]);
-     const chroma=mx-mn;
-     // Universal-blue tiles: transparent/no echo and very weak haze are discarded.
-     if(a<18 || (mx<80 && chroma<22)){p[i+3]=0;continue}
-     const strength=Math.max(0,Math.min(1,(mx-55)/200));
-     p[i]=70;p[i+1]=255;p[i+2]=60;
-     p[i+3]=Math.round(35 + 145*Math.pow(strength,1.35));
-   }
-   ox.putImageData(im,0,0);wxCanvas=oc;
-   const dt=wxFrameTime?new Date(+wxFrameTime*1000):null;
-   wxInfo.textContent=dt?`RX ${dt.toISOString().slice(11,16)}Z`:"WX ONLINE";
- }catch(e){wxInfo.textContent="WX ERROR";console.error(e)}
- wxLoading=false;
-}
-function drawWX(R,d){
- if(!wxOn||!wxCanvas||lat===null)return;
- const z=wxZoom();
- const earth=40075016.686;
- // 512px coordinate image spans two conventional 256px Web-Mercator tiles.
- const imageWidthMeters=2*earth*Math.cos(rad(lat))/Math.pow(2,z);
- const halfNm=(imageWidthMeters/2)/1852;
- const fullDisplay=2*R*(halfNm/range);
- X.save();X.beginPath();X.arc(0,0,R,0,Math.PI*2);X.clip();
- X.globalAlpha=.46;X.imageSmoothingEnabled=false;
- X.drawImage(wxCanvas,-fullDisplay/2,-fullDisplay/2,fullDisplay,fullDisplay);
- X.restore();
-}
+async function loadWX(){if(wxLoading||lat===null||!wxOn)return;wxLoading=true;try{const z=wxZoom(),r=await fetch(`/api/wx/tile?lat=${lat}&lon=${lon}&z=${z}`,{cache:"no-store"});if(!r.ok)throw 0;const blob=await r.blob(),img=await createImageBitmap(blob),cv=document.createElement('canvas');cv.width=img.width;cv.height=img.height;const c=cv.getContext('2d');c.drawImage(img,0,0);const im=c.getImageData(0,0,cv.width,cv.height);for(let i=0;i<im.data.length;i+=4){const v=Math.max(im.data[i],im.data[i+1],im.data[i+2]);im.data[i]=20;im.data[i+1]=Math.min(255,v*1.5);im.data[i+2]=20;im.data[i+3]=Math.min(155,im.data[i+3])}c.putImageData(im,0,0);wxCanvas=cv;wxFrameTime=Date.now()}catch(e){}finally{wxLoading=false}}
 
-function crossed(prev,cur,target){if(cur>=prev)return target>=prev&&target<cur;return target>=prev||target<cur}
-function deadReckon(lat0,lon0,trackDeg,gsKt,seconds){
- // Great-circle projection from the last ADS-B fix. Keeps contacts moving between API refreshes.
- const Rnm=3440.065,distNm=Math.max(0,gsKt)*Math.max(0,seconds)/3600;
- const br=rad(trackDeg),p1=rad(lat0),l1=rad(lon0),ad=distNm/Rnm;
- const p2=Math.asin(Math.sin(p1)*Math.cos(ad)+Math.cos(p1)*Math.sin(ad)*Math.cos(br));
- const l2=l1+Math.atan2(Math.sin(br)*Math.sin(ad)*Math.cos(p1),Math.cos(ad)-Math.sin(p1)*Math.sin(p2));
- return [p2*180/Math.PI,((l2*180/Math.PI+540)%360)-180];
-}
-function interpolateTracks(){
- const t=nowSec();
- for(const tr of tracks.values()){
-   const span=Math.max(.25,tr.t1-tr.t0),raw=(t-tr.t0)/span;
-   if(raw<=1){
-     const u=Math.max(0,raw);
-     tr.lat=tr.fromLat+(tr.toLat-tr.fromLat)*u;
-     tr.lon=tr.fromLon+(tr.toLon-tr.fromLon)*u;
-   }else{
-     // The API refresh is ~15 s while interpolation lasts 5 s. Previously contacts froze for ~10 s here.
-     // Continue motion from the last real fix using ADS-B groundspeed + track until the next fix arrives.
-     const a=tr.air||{},gs=+a.gs,hdg=+a.track,age=Math.min(45,t-tr.t1);
-     if(Number.isFinite(gs)&&gs>1&&Number.isFinite(hdg)){
-       [tr.lat,tr.lon]=deadReckon(tr.toLat,tr.toLon,hdg,gs,age);
-     }else{tr.lat=tr.toLat;tr.lon=tr.toLon;}
-   }
-   if(!tr._trail||t-tr._trail>.55){tr.trail.unshift([tr.lat,tr.lon,t]);tr.trail=tr.trail.filter(p=>t-p[2]<9).slice(0,12);tr._trail=t}
-   tr.glow=Math.max(0,tr.glow-.012);
- }
-}
+function fit(){const r=C.getBoundingClientRect(),d=devicePixelRatio||1,w=Math.max(2,Math.floor(r.width*d)),h=Math.max(2,Math.floor(r.height*d));if(C.width!==w||C.height!==h){C.width=w;C.height=h}}
 
-// --- JTS V0.9 PIXEL BOARD ENGINE ---
-const FONT5x7 = {
-' ': '.....|.....|.....|.....|.....|.....|.....',
-'!': '..#..|..#..|..#..|..#..|..#..|.....|..#..',
-'"': '.#.#.|.#.#.|.#.#.|.....|.....|.....|.....',
-'#': '.#.#.|.#.#.|#####|.#.#.|#####|.#.#.|.#.#.',
-'$': '..#..|.####|#.#..|.###.|..#.#|####.|..#..',
-'%': '##...|##..#|...#.|..#..|.#...|#..##|...##',
-'&': '.##..|#..#.|#.#..|.#...|#.#.#|#..#.|.##.#',
-"'": '.##..|..#..|.#...|.....|.....|.....|.....',
-'(': '...#.|..#..|.#...|.#...|.#...|..#..|...#.',
-')': '.#...|..#..|...#.|...#.|...#.|..#..|.#...',
-'*': '.....|..#..|#.#.#|.###.|#.#.#|..#..|.....',
-'+': '.....|..#..|..#..|#####|..#..|..#..|.....',
-',': '.....|.....|.....|.....|.##..|..#..|.#...',
-'-': '.....|.....|.....|#####|.....|.....|.....',
-'.': '.....|.....|.....|.....|.....|.##..|.##..',
-'/': '.....|....#|...#.|..#..|.#...|#....|.....',
-'0': '.###.|#...#|#..##|#.#.#|##..#|#...#|.###.',
-'1': '..#..|.##..|..#..|..#..|..#..|..#..|.###.',
-'2': '.###.|#...#|....#|...#.|..#..|.#...|#####',
-'3': '#####|...#.|..#..|...#.|....#|#...#|.###.',
-'4': '...#.|..##.|.#.#.|#..#.|#####|...#.|...#.',
-'5': '#####|#....|####.|....#|....#|#...#|.###.',
-'6': '..##.|.#...|#....|####.|#...#|#...#|.###.',
-'7': '#####|....#|...#.|..#..|.#...|.#...|.#...',
-'8': '.###.|#...#|#...#|.###.|#...#|#...#|.###.',
-'9': '.###.|#...#|#...#|.####|....#|...#.|.##..',
-':': '.....|.##..|.##..|.....|.##..|.##..|.....',
-';': '.....|.##..|.##..|.....|.##..|..#..|.#...',
-'<': '...#.|..#..|.#...|#....|.#...|..#..|...#.',
-'=': '.....|.....|#####|.....|#####|.....|.....',
-'>': '.#...|..#..|...#.|....#|...#.|..#..|.#...',
-'?': '.###.|#...#|....#|...#.|..#..|.....|..#..',
-'@': '.###.|#...#|....#|.##.#|#.#.#|#.#.#|.###.',
-'A': '.###.|#...#|#...#|#####|#...#|#...#|#...#',
-'B': '####.|#...#|#...#|####.|#...#|#...#|####.',
-'C': '.###.|#...#|#....|#....|#....|#...#|.###.',
-'D': '###..|#..#.|#...#|#...#|#...#|#..#.|###..',
-'E': '#####|#....|#....|####.|#....|#....|#####',
-'F': '#####|#....|#....|####.|#....|#....|#....',
-'G': '.###.|#...#|#....|#.###|#...#|#...#|.####',
-'H': '#...#|#...#|#...#|#####|#...#|#...#|#...#',
-'I': '.###.|..#..|..#..|..#..|..#..|..#..|.###.',
-'J': '..###|...#.|...#.|...#.|...#.|#..#.|.##..',
-'K': '#...#|#..#.|#.#..|##...|#.#..|#..#.|#...#',
-'L': '#....|#....|#....|#....|#....|#....|#####',
-'M': '#...#|##.##|#.#.#|#.#.#|#...#|#...#|#...#',
-'N': '#...#|#...#|##..#|#.#.#|#..##|#...#|#...#',
-'O': '.###.|#...#|#...#|#...#|#...#|#...#|.###.',
-'P': '####.|#...#|#...#|####.|#....|#....|#....',
-'Q': '.###.|#...#|#...#|#...#|#.#.#|#..#.|.##.#',
-'R': '####.|#...#|#...#|####.|#.#..|#..#.|#...#',
-'S': '.####|#....|#....|.###.|....#|....#|####.',
-'T': '#####|..#..|..#..|..#..|..#..|..#..|..#..',
-'U': '#...#|#...#|#...#|#...#|#...#|#...#|.###.',
-'V': '#...#|#...#|#...#|#...#|#...#|.#.#.|..#..',
-'W': '#...#|#...#|#...#|#.#.#|#.#.#|#.#.#|.#.#.',
-'X': '#...#|#...#|.#.#.|..#..|.#.#.|#...#|#...#',
-'Y': '#...#|#...#|#...#|.#.#.|..#..|..#..|..#..',
-'Z': '#####|....#|...#.|..#..|.#...|#....|#####',
-'[': '.###.|.#...|.#...|.#...|.#...|.#...|.###.',
-'\\': '.....|#....|.#...|..#..|...#.|....#|.....',
-']': '.###.|...#.|...#.|...#.|...#.|...#.|.###.',
-'^': '..#..|.#.#.|#...#|.....|.....|.....|.....',
-'_': '.....|.....|.....|.....|.....|.....|#####',
-'`': '.#...|..#..|...#.|.....|.....|.....|.....',
-'a': '.....|.....|.###.|....#|.####|#...#|.####',
-'b': '#....|#....|#.##.|##..#|#...#|#...#|####.',
-'c': '.....|.....|.###.|#....|#....|#...#|.###.',
-'d': '....#|....#|.##.#|#..##|#...#|#...#|.####',
-'e': '.....|.....|.###.|#...#|#####|#....|.###.',
-'f': '..##.|.#..#|.#...|###..|.#...|.#...|.#...',
-'g': '.....|.....|.####|#...#|.####|....#|.###.',
-'h': '#....|#....|#.##.|##..#|#...#|#...#|#...#',
-'i': '..#..|.....|.##..|..#..|..#..|..#..|.###.',
-'j': '...#.|.....|..##.|...#.|...#.|#..#.|.##..',
-'k': '#....|#....|#..#.|#.#..|##...|#.#..|#..#.',
-'l': '.##..|..#..|..#..|..#..|..#..|..#..|.###.',
-'m': '.....|.....|##.#.|#.#.#|#.#.#|#...#|#...#',
-'n': '.....|.....|#.##.|##..#|#...#|#...#|#...#',
-'o': '.....|.....|.###.|#...#|#...#|#...#|.###.',
-'p': '.....|.....|####.|#...#|####.|#....|#....',
-'q': '.....|.....|.####|#...#|.####|....#|....#',
-'r': '.....|.....|#.##.|##..#|#....|#....|#....',
-'s': '.....|.....|.###.|#....|.###.|....#|####.',
-'t': '.#...|.#...|###..|.#...|.#...|.#..#|..##.',
-'u': '.....|.....|#...#|#...#|#...#|#..##|.##.#',
-'v': '.....|.....|#...#|#...#|#...#|.#.#.|..#..',
-'w': '.....|.....|#...#|#...#|#.#.#|#.#.#|.#.#.',
-'x': '.....|.....|#...#|.#.#.|..#..|.#.#.|#...#',
-'y': '.....|.....|#...#|#...#|.####|....#|.###.',
-'z': '.....|.....|#####|...#.|..#..|.#...|#####',
-'{': '...#.|..#..|..#..|.#...|..#..|..#..|...#.',
-'|': '..#..|..#..|..#..|..#..|..#..|..#..|..#..',
-'}': '.#...|..#..|..#..|...#.|..#..|..#..|.#...',
-'~': '.....|.....|.#..#|#.#.#|#..#.|.....|.....',
-'°': '.##..|#..#.|.##..|.....|.....|.....|.....',
-'→': '.....|..#..|...#.|#####|...#.|..#..|.....',
-'←': '.....|..#..|.#...|#####|.#...|..#..|.....',
-'↑': '..#..|.###.|#.#.#|..#..|..#..|..#..|..#..',
-'↓': '..#..|..#..|..#..|..#..|#.#.#|.###.|..#..',
-};
-const JTS_GLYPHS={}; for(const ch in FONT5x7) JTS_GLYPHS[ch]=FONT5x7[ch].split('|');
-function pxTextWidth(text,scale=1){return Math.max(0,String(text).length*6-1)*scale}
-function pxText(text,x,y,scale=1,align="left",alpha=1,color=G){
-  text=String(text??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase();
-  let ox=x;if(align==="center")ox-=pxTextWidth(text,scale)/2;if(align==="right")ox-=pxTextWidth(text,scale);
-  X.save();X.globalAlpha=alpha;X.fillStyle=color;X.shadowColor=color;X.shadowBlur=(ledGlow/100)*6*scale;
-  for(const ch of text){const rows=JTS_GLYPHS[ch]||JTS_GLYPHS['?'];for(let ry=0;ry<7;ry++)for(let rx=0;rx<5;rx++)if(rows[ry][rx]==='#'){const xx=ox+rx*scale,yy=y+ry*scale,sz=Math.max(1,scale*.72);X.beginPath();if(ledShape==='square')X.rect(xx,yy,sz,sz);else X.arc(xx+sz/2,yy+sz/2,sz*.48,0,Math.PI*2);X.fill();}ox+=6*scale;}
-  X.restore();
-}
+// --- LED font / board renderer (approved V1.3H geometry preserved) ---
+const F3={A:['010','101','111','101','101'],B:['110','101','110','101','110'],C:['011','100','100','100','011'],D:['110','101','101','101','110'],E:['111','100','110','100','111'],F:['111','100','110','100','100'],G:['011','100','101','101','011'],H:['101','101','111','101','101'],I:['111','010','010','010','111'],J:['001','001','001','101','010'],K:['101','101','110','101','101'],L:['100','100','100','100','111'],M:['101','111','111','101','101'],N:['101','111','111','111','101'],O:['010','101','101','101','010'],P:['110','101','110','100','100'],Q:['010','101','101','011','001'],R:['110','101','110','101','101'],S:['011','100','010','001','110'],T:['111','010','010','010','010'],U:['101','101','101','101','111'],V:['101','101','101','101','010'],W:['101','101','111','111','101'],X:['101','101','010','101','101'],Y:['101','101','010','010','010'],Z:['111','001','010','100','111'],'0':['111','101','101','101','111'],'1':['010','110','010','010','111'],'2':['110','001','010','100','111'],'3':['110','001','010','001','110'],'4':['101','101','111','001','001'],'5':['111','100','110','001','110'],'6':['011','100','111','101','111'],'7':['111','001','010','010','010'],'8':['111','101','111','101','111'],'9':['111','101','111','001','110'],'.':['000','000','000','000','010'],':':['000','010','000','010','000'],'-':['000','000','111','000','000'],'/':['001','001','010','100','100'],' ':['000','000','000','000','000']};
+const F5={A:['01110','10001','10001','11111','10001','10001','10001'],B:['11110','10001','10001','11110','10001','10001','11110'],C:['01111','10000','10000','10000','10000','10000','01111'],D:['11110','10001','10001','10001','10001','10001','11110'],E:['11111','10000','10000','11110','10000','10000','11111'],F:['11111','10000','10000','11110','10000','10000','10000'],G:['01111','10000','10000','10111','10001','10001','01111'],H:['10001','10001','10001','11111','10001','10001','10001'],I:['11111','00100','00100','00100','00100','00100','11111'],J:['00111','00010','00010','00010','10010','10010','01100'],K:['10001','10010','10100','11000','10100','10010','10001'],L:['10000','10000','10000','10000','10000','10000','11111'],M:['10001','11011','10101','10101','10001','10001','10001'],N:['10001','11001','10101','10011','10001','10001','10001'],O:['01110','10001','10001','10001','10001','10001','01110'],P:['11110','10001','10001','11110','10000','10000','10000'],Q:['01110','10001','10001','10001','10101','10010','01101'],R:['11110','10001','10001','11110','10100','10010','10001'],S:['01111','10000','10000','01110','00001','00001','11110'],T:['11111','00100','00100','00100','00100','00100','00100'],U:['10001','10001','10001','10001','10001','10001','01110'],V:['10001','10001','10001','10001','10001','01010','00100'],W:['10001','10001','10001','10101','10101','10101','01010'],X:['10001','10001','01010','00100','01010','10001','10001'],Y:['10001','10001','01010','00100','00100','00100','00100'],Z:['11111','00001','00010','00100','01000','10000','11111'],'0':['01110','10001','10011','10101','11001','10001','01110'],'1':['00100','01100','00100','00100','00100','00100','01110'],'2':['01110','10001','00001','00010','00100','01000','11111'],'3':['11110','00001','00001','01110','00001','00001','11110'],'4':['00010','00110','01010','10010','11111','00010','00010'],'5':['11111','10000','10000','11110','00001','00001','11110'],'6':['01110','10000','10000','11110','10001','10001','01110'],'7':['11111','00001','00010','00100','01000','01000','01000'],'8':['01110','10001','10001','01110','10001','10001','01110'],'9':['01110','10001','10001','01111','00001','00001','01110'],'.':['00000','00000','00000','00000','00000','00110','00110'],':':['00000','00110','00110','00000','00110','00110','00000'],'-':['00000','00000','00000','11111','00000','00000','00000'],'/':['00001','00010','00100','01000','10000','00000','00000'],' ':['00000','00000','00000','00000','00000','00000','00000']};
+function fbDot(ctx,x,y,c,p=1){ctx.fillStyle=c;ctx.shadowColor=c;ctx.shadowBlur=ledGlow/100*8*p;if(ledShape==='square')ctx.fillRect(x-p*.38,y-p*.38,p*.76,p*.76);else{ctx.beginPath();ctx.arc(x,y,p*.36,0,Math.PI*2);ctx.fill()}ctx.shadowBlur=0}
+function fbText(ctx,text,x,y,c,font=F3,scale=1){text=String(text||'').toUpperCase();let ox=x;for(const ch of text){const g=font[ch]||font[' '],cw=g[0].length;for(let yy=0;yy<g.length;yy++)for(let xx=0;xx<cw;xx++)if(g[yy][xx]==='1')fbDot(ctx,ox+xx*scale,y+yy*scale,c,scale);ox+=(cw+1)*scale}return ox}
+function fbText3(ctx,t,x,y,c){return fbText(ctx,t,x,y,c,F3,1)}function fbText5(ctx,t,x,y,c){return fbText(ctx,t,x,y,c,F5,1)}
+function fbPlane(ctx,x,y,s,hdg,c){ctx.save();ctx.translate(x,y);ctx.rotate(rad(hdg||0));fbDot(ctx,0,-s,c,2);fbDot(ctx,0,0,c,2);fbDot(ctx,-s,0,c,2);fbDot(ctx,s,0,c,2);fbDot(ctx,0,s,c,2);ctx.restore()}
+let fbOffGrid=null;
+function drawLedGrid(ctx,w,h){const p=Math.max(5,ledPitch);if(!fbOffGrid||fbOffGrid.w!==w||fbOffGrid.h!==h||fbOffGrid.p!==p||fbOffGrid.c!==ledOffColor){const cv=document.createElement('canvas');cv.width=w;cv.height=h;const c=cv.getContext('2d');c.fillStyle=ledBgColor;c.fillRect(0,0,w,h);c.fillStyle=ledOffColor;for(let y=p/2;y<h;y+=p)for(let x=p/2;x<w;x+=p){c.beginPath();c.arc(x,y,Math.max(.5,p*.13),0,Math.PI*2);c.fill()}fbOffGrid={cv,w,h,p,c:ledOffColor}}ctx.drawImage(fbOffGrid.cv,0,0,w,h)}
+function boardFlights(){const arr=[];if(lat===null)return arr;for(const tr of tracks.values()){const[nm]=nav(lat,lon,tr.lat,tr.lon);if(nm<=range)arr.push({...tr.air,_nm:nm})}arr.sort((a,b)=>a._nm-b._nm);return arr.slice(0,12)}
+function drawBoard(){fit();const w=C.width,h=C.height,d=devicePixelRatio||1;drawLedGrid(X,w,h);X.save();X.scale(d,d);const W=w/d,H=h/d,fl=boardFlights();if(!fl.length){fbText5(X,'NO TRAFFIC',20,30,activeColor('call'));X.restore();return}const cols=W>800?2:1,rows=Math.ceil(fl.length/cols),cw=W/cols,ch=Math.max(72,(H-12)/Math.max(1,rows));fl.forEach((f,i)=>{const col=i%cols,row=Math.floor(i/cols),x=col*cw+8,y=row*ch+8;const call=ident(f).slice(0,12),origin=(f.origin||f.from||'').toString().slice(0,15),destination=(f.destination||f.to||'').toString().slice(0,15),route=(f.route||f.flight_route||(origin||destination?`${origin||'---'}-${destination||'---'}`:'')).toString().slice(0,20),type=(f.t||f.type||f.aircraft_type||'').toString().slice(0,12),reg=(f.r||f.reg||'').toString().slice(0,10),alt=altitude(f)==='GND'?'GND':'FL'+altitude(f),spd=Number.isFinite(+f.gs)?Math.round(+f.gs)+'KT':'---KT',hdg=Number.isFinite(+f.track)?String(Math.round(+f.track)).padStart(3,'0'):'---';fbPlane(X,x+3,y+5,4,+f.track||0,activeColor('route'));fbText5(X,call,x+9,y,activeColor('call'));let yy=y+10;if(route){fbText5(X,route,x+9,yy,activeColor('route'));yy+=9}if(origin){fbText3(X,`DE: ${origin}`,x+9,yy,activeColor('call'));yy+=6}if(destination){fbText3(X,`VERS: ${destination}`,x+9,yy,activeColor('call'));yy+=6}if(type||reg){fbText3(X,[type,reg].filter(Boolean).join(' '),x+9,yy,activeColor('type'));yy+=6}fbText3(X,`${alt}  ${spd}  HDG${hdg}`,x+9,yy,activeColor('alt'))});X.restore()}
+function drawLedRadar(){fit();const w=C.width,h=C.height;drawLedGrid(X,w,h);X.save();X.translate(w/2,h/2);const R=Math.min(w,h)*.43;X.strokeStyle=activeColor('route');X.globalAlpha=.6;for(let q=1;q<=4;q++){X.beginPath();X.arc(0,0,R*q/4,0,Math.PI*2);X.stroke()}X.globalAlpha=1;if(lat!==null)for(const tr of tracks.values()){const[nm,b]=nav(lat,lon,tr.lat,tr.lon);if(nm>range)continue;const rr=R*nm/range,a=rad(b-90),px=Math.cos(a)*rr,py=Math.sin(a)*rr;fbDot(X,px,py,activeColor('call'),Math.max(2,(devicePixelRatio||1)*2));}X.restore()}
 
-/* ============================================================
-   FLIGHTBOARD LED GRAFT
-   The logical raster is the same architecture as FlightBoard:
-   one logical pixel = one physical LED. Geometry is composed on
-   a low-resolution matrix then expanded as round/square lamps.
-   ============================================================ */
-const FB_FONT3x5={
-'0':'###|#.#|#.#|#.#|###','1':'.#.|##.|.#.|.#.|###','2':'###|..#|###|#..|###','3':'###|..#|###|..#|###',
-'4':'#.#|#.#|###|..#|..#','5':'###|#..|###|..#|###','6':'###|#..|###|#.#|###','7':'###|..#|..#|..#|..#',
-'8':'###|#.#|###|#.#|###','9':'###|#.#|###|..#|###','A':'.#.|#.#|###|#.#|#.#','B':'##.|#.#|##.|#.#|##.',
-'C':'###|#..|#..|#..|###','D':'##.|#.#|#.#|#.#|##.','E':'###|#..|###|#..|###','F':'###|#..|###|#..|#..',
-'G':'###|#..|#.#|#.#|###','H':'#.#|#.#|###|#.#|#.#','I':'###|.#.|.#.|.#.|###','J':'..#|..#|..#|#.#|###',
-'K':'#.#|#.#|##.|#.#|#.#','L':'#..|#..|#..|#..|###','M':'#.#|###|###|#.#|#.#','N':'###|#.#|#.#|#.#|#.#',
-'O':'###|#.#|#.#|#.#|###','P':'###|#.#|###|#..|#..','Q':'###|#.#|#.#|###|..#','R':'###|#.#|##.|#.#|#.#',
-'S':'###|#..|###|..#|###','T':'###|.#.|.#.|.#.|.#.','U':'#.#|#.#|#.#|#.#|###','V':'#.#|#.#|#.#|#.#|.#.',
-'W':'#.#|#.#|###|###|#.#','X':'#.#|#.#|.#.|#.#|#.#','Y':'#.#|#.#|.#.|.#.|.#.','Z':'###|..#|.#.|#..|###',
-'-':'...|...|###|...|...','#':'#.#|###|#.#|###|#.#',' ':'...|...|...|...|...','/':'..#|..#|.#.|#..|#..',
-'.':'...|...|...|...|.#.',':':'...|.#.|...|.#.|...'
-};
-const FB_G3={};for(const ch in FB_FONT3x5)FB_G3[ch]=FB_FONT3x5[ch].split('|');
-function fbGlyph(ch){let rows=JTS_GLYPHS[ch];if(rows)return rows;let b=String(ch).normalize('NFD').replace(/[\u0300-\u036f]/g,'');return JTS_GLYPHS[b]||JTS_GLYPHS['?']||JTS_GLYPHS[' '];}
-function fbText5(g,text,x,y,color){g.fillStyle=color;let xx=x;for(const ch of String(text)){const rows=fbGlyph(ch);for(let r=0;r<7;r++)for(let c=0;c<5;c++)if(rows[r]&&rows[r][c]==='#')g.fillRect(xx+c,y+r,1,1);xx+=6;}return xx-x-1;}
-function fbMeasure5(text){return [...String(text)].length*6-1}
-function fbText3(g,text,x,y,color){g.fillStyle=color;let xx=x;for(const ch of String(text).toUpperCase()){const rows=FB_G3[ch]||FB_G3[' '];for(let r=0;r<5;r++)for(let c=0;c<3;c++)if(rows[r][c]==='#')g.fillRect(xx+c,y+r,1,1);xx+=4;}return xx-x-1;}
-function fbMeasure3(text){return String(text).length*4-1}
+function draw(){fit();if(displayMode==='board'){drawBoard();requestAnimationFrame(draw);return}if(displayMode==='ledradar'){drawLedRadar();requestAnimationFrame(draw);return}const w=C.width,h=C.height,d=devicePixelRatio||1;X.setTransform(1,0,0,1,0,0);X.fillStyle="#000700";X.fillRect(0,0,w,h);if(wxOn&&wxCanvas){X.globalAlpha=.62;X.drawImage(wxCanvas,0,0,w,h);X.globalAlpha=1}X.save();X.translate(w/2,h/2);const R=Math.min(w,h)*.44;X.strokeStyle=D;X.lineWidth=Math.max(1,d);for(let q=1;q<=4;q++){X.beginPath();X.arc(0,0,R*q/4,0,Math.PI*2);X.stroke()}classicHit=[];for(let z=0;z<360;z+=30){const a=rad(z-90);X.fillStyle=G;X.font=`bold ${12*d}px Courier New`;X.textAlign="center";X.fillText(String(z).padStart(3,"0"),Math.cos(a)*R*.895,Math.sin(a)*R*.895+3*d)}prevSweep=sweep*360;sweep=(sweep+.0030)%1;const sweepDeg=sweep*360,sa=rad(sweepDeg-90);let gr=X.createRadialGradient(0,0,0,0,0,R);gr.addColorStop(0,"rgba(114,255,85,.015)");gr.addColorStop(.75,"rgba(114,255,85,.10)");gr.addColorStop(1,"rgba(114,255,85,.34)");X.fillStyle=gr;X.beginPath();X.moveTo(0,0);X.arc(0,0,R,sa-.23,sa);X.closePath();X.fill();X.strokeStyle=G;X.beginPath();X.moveTo(0,0);X.lineTo(Math.cos(sa)*R,Math.sin(sa)*R);X.stroke();X.strokeStyle=G;X.lineWidth=Math.max(1,d);X.beginPath();X.arc(0,0,7*d,0,Math.PI*2);X.moveTo(-14*d,0);X.lineTo(14*d,0);X.moveTo(0,-14*d);X.lineTo(0,14*d);X.stroke();X.beginPath();X.arc(0,0,2*d,0,Math.PI*2);X.fillStyle=G;X.fill();if(lat!==null){for(const tr of tracks.values()){const[nm,b]=nav(lat,lon,tr.lat,tr.lon);if(nm>range)continue;if(crossed(prevSweep,sweepDeg,b))tr.glow=1;for(let i=0;i<tr.trail.length;i++){const p=tr.trail[i],[tn,tb]=nav(lat,lon,p[0],p[1]);if(tn>range)continue;const rr=R*tn/range,ang=rad(tb-90),px=Math.cos(ang)*rr,py=Math.sin(ang)*rr,age=nowSec()-p[2],alpha=Math.max(0,.20*(1-age/9));X.fillStyle=`rgba(114,255,85,${alpha})`;X.beginPath();X.arc(px,py,Math.max(1,1.6*d),0,Math.PI*2);X.fill()}const rr=R*nm/range,ang=rad(b-90),px=Math.cos(ang)*rr,py=Math.sin(ang)*rr,alpha=.38+.62*tr.glow;const a=tr.air,track=Number.isFinite(+a.track)?+a.track:0,hh=rad(track-90);X.save();X.translate(px,py);X.rotate(hh+Math.PI/2);X.fillStyle=`rgba(114,255,85,${alpha})`;X.strokeStyle=`rgba(114,255,85,${alpha})`;X.shadowColor=G;X.shadowBlur=(4+10*tr.glow)*d;X.beginPath();X.moveTo(0,-7*d);X.lineTo(2*d,-1*d);X.lineTo(8*d,2*d);X.lineTo(8*d,4*d);X.lineTo(2*d,3*d);X.lineTo(1.5*d,7*d);X.lineTo(4*d,9*d);X.lineTo(4*d,10*d);X.lineTo(0,9*d);X.lineTo(-4*d,10*d);X.lineTo(-4*d,9*d);X.lineTo(-1.5*d,7*d);X.lineTo(-2*d,3*d);X.lineTo(-8*d,4*d);X.lineTo(-8*d,2*d);X.lineTo(-2*d,-1*d);X.closePath();X.fill();X.restore();X.shadowBlur=0;if(Number.isFinite(+a.track)){X.strokeStyle=`rgba(114,255,85,${.35+.45*tr.glow})`;X.beginPath();X.moveTo(px+Math.cos(hh)*10*d,py+Math.sin(hh)*10*d);X.lineTo(px+Math.cos(hh)*34*d,py+Math.sin(hh)*34*d);X.stroke()}const idtxt=ident(a),focused=(classicFocus===tr.id&&performance.now()<classicFocusUntil),hdg=Number.isFinite(+a.track)?String(Math.round(+a.track)).padStart(3,"0"):"---",altTxt=altitude(a)==="GND"?"GND":"FL"+altitude(a),spd=Number.isFinite(+a.gs)?Math.round(+a.gs)+"KT":"---KT",cfg=focused?{call:true,alt:true,speed:true,hdg:true,dist:true,smart:false}:classicCfg;let lines=[];if(cfg.alt)lines.push(`ALT: ${altTxt}`);if(cfg.speed)lines.push(`VIT: ${spd}`);if(cfg.hdg&&cfg.dist)lines.push(`HDG: ${hdg}  DIST: ${nm.toFixed(1)}NM`);else if(cfg.hdg)lines.push(`HDG: ${hdg}`);else if(cfg.dist)lines.push(`DIST: ${nm.toFixed(1)}NM`);const lx=px+10*d,ly=py-8*d,lineH=17*d,labelW=Math.max(72*d,...([idtxt,...lines].map(t=>t.length*8.5*d))),labelH=(1+lines.length)*lineH;let crowded=false;if(cfg.smart&&!focused){for(const q of classicHit){if(!(lx+labelW<q.x||lx>q.x+q.w||ly+labelH<q.y||ly>q.y+q.h)){crowded=true;break}}}classicHit.push({id:tr.id,x:lx,y:ly-14*d,w:labelW,h:Math.max(24*d,labelH+14*d),px,py});X.textAlign="left";X.fillStyle=`rgba(114,255,85,${.72+.28*tr.glow})`;X.shadowColor="#000";X.shadowBlur=3*d;if(cfg.call){X.font=`bold ${18*d}px Courier New`;X.fillText(idtxt,lx,ly)}if(!crowded||focused){X.font=`${14*d}px Courier New`;let yy=ly+18*d;for(const line of lines){X.fillText(line,lx,yy);yy+=17*d}}X.shadowBlur=0;}}X.restore();requestAnimationFrame(draw)}
 
-const fbMat=document.createElement('canvas'),fbM=fbMat.getContext('2d',{willReadFrequently:true});
-let fbOffGrid=null,fbDims='';
-function fbResize(W,H,d){const p=Math.max(4,Math.round(ledPitch*d));const mw=Math.max(16,Math.floor(W/p)),mh=Math.max(8,Math.floor(H/p));const sig=`${W}x${H}@${p}:${ledShape}:${ledOffColor}`;if(fbDims!==sig){fbDims=sig;fbMat.width=mw;fbMat.height=mh;fbOffGrid=null;}return {p,mw,mh};}
-function fbPlane(g,cx,cy,size,angleDeg,color){g.save();g.translate(cx,cy);g.rotate((angleDeg-90)*Math.PI/180);g.scale(size/10,size/10);g.fillStyle=color;g.beginPath();g.moveTo(9,0);g.lineTo(3,-1.2);g.lineTo(-1,-9);g.lineTo(-3.5,-9);g.lineTo(-2,-1.3);g.lineTo(-6,-1);g.lineTo(-8,-4);g.lineTo(-9.5,-4);g.lineTo(-8.5,0);g.lineTo(-9.5,4);g.lineTo(-8,4);g.lineTo(-6,1);g.lineTo(-2,1.3);g.lineTo(-3.5,9);g.lineTo(-1,9);g.lineTo(3,1.2);g.closePath();g.fill();g.restore();}
-function fbRows(){let a=[];if(lat===null)return a;for(const tr of tracks.values()){const[nm,b]=nav(lat,lon,tr.lat,tr.lon);if(nm<=range)a.push({tr,nm,b,air:tr.air||{}})}a.sort((x,y)=>x.nm-y.nm);return a;}
-function fbRenderLeds(W,H,d){const {p,mw:MW,mh:MH}=fbResize(W,H,d),round=ledShape!=='square';const ox=(W-MW*p)/2,oy=(H-MH*p)/2,r=p*.36;X.fillStyle=ledBgColor;X.fillRect(0,0,W,H);if(!fbOffGrid){fbOffGrid=document.createElement('canvas');fbOffGrid.width=W;fbOffGrid.height=H;const g=fbOffGrid.getContext('2d');g.fillStyle=ledOffColor;for(let y=0;y<MH;y++)for(let x=0;x<MW;x++){const xx=ox+x*p+p/2,yy=oy+y*p+p/2;if(round){g.beginPath();g.arc(xx,yy,r,0,Math.PI*2);g.fill()}else g.fillRect(xx-r,yy-r,r*2,r*2)}}X.drawImage(fbOffGrid,0,0);const img=fbM.getImageData(0,0,MW,MH).data;for(let pass=0;pass<2;pass++){for(let y=0;y<MH;y++)for(let x=0;x<MW;x++){const i=(y*MW+x)*4,a=img[i+3];if(a<90)continue;const k=Math.min(1,a/255+.15),xx=ox+x*p+p/2,yy=oy+y*p+p/2;if(pass===0&&ledGlow<=0)continue;const rr=pass===0?r*1.9:r;X.fillStyle=`rgba(${img[i]},${img[i+1]},${img[i+2]},${pass===0?(ledGlow/100)*k:k})`;if(round){X.beginPath();X.arc(xx,yy,rr,0,Math.PI*2);X.fill()}else X.fillRect(xx-rr,yy-rr,rr*2,rr*2)}}}
-
-function drawLedRadar(W,H,d){
-  const {mw:Wm,mh:Hm}=fbResize(W,H,d);fbM.clearRect(0,0,Wm,Hm);const col=activeColor('alt'),cx=Math.floor(Wm/2),cy=Math.floor(Hm/2),R=Math.max(10,Math.floor(Math.min(Wm,Hm)/2)-2),rows=fbRows();
-  // FlightBoard sweep: broad filled sector + bright needle.
-  const now=performance.now(),ang=(now%4000)/4000*2*Math.PI;fbM.fillStyle=col;fbM.globalAlpha=.42;fbM.beginPath();fbM.moveTo(cx,cy);fbM.arc(cx,cy,R,ang-Math.PI/2-.85,ang-Math.PI/2);fbM.closePath();fbM.fill();fbM.globalAlpha=1;fbM.strokeStyle=col;fbM.lineWidth=1;fbM.beginPath();fbM.moveTo(cx,cy);fbM.lineTo(cx+R*Math.sin(ang),cy-R*Math.cos(ang));fbM.stroke();
-  // Exact FlightBoard visual grammar: 3 rings + cross + cardinal letters.
-  for(const f of [1/3,2/3,1]){fbM.globalAlpha=f===1?.85:.45;fbM.beginPath();fbM.arc(cx,cy,R*f,0,Math.PI*2);fbM.stroke()}fbM.globalAlpha=.4;fbM.beginPath();fbM.moveTo(cx-R,cy);fbM.lineTo(cx+R,cy);fbM.moveTo(cx,cy-R);fbM.lineTo(cx,cy+R);fbM.stroke();fbM.globalAlpha=1;
-  fbText5(fbM,'N',cx-2,cy-R+2,col);fbText5(fbM,'S',cx-2,cy+R-9,col);fbText5(fbM,'W',cx-R+3,cy-3,col);fbText5(fbM,'E',cx+R-8,cy-3,col);fbText5(fbM,`${range}NM`,1,1,col);fbText5(fbM,`${rows.length} CONTACTS`,1,9,col);
-  const polar=(nm,brg)=>{const rr=Math.min(1,nm/range)*R,a=brg*Math.PI/180;return[cx+rr*Math.sin(a),cy-rr*Math.cos(a)]};
-  // Trails are deliberately tiny, as in FlightBoard.
-  for(const o of rows){const tr=o.tr.trail;if(!tr||tr.length<2)continue;tr.slice(0,-1).forEach((pt,j)=>{const[nm,b]=nav(lat,lon,pt[0],pt[1]);if(nm>range)return;const[tx,ty]=polar(nm,b);fbM.globalAlpha=.35+.45*(j/Math.max(1,tr.length-1));fbM.fillStyle=col;fbM.fillRect(Math.round(tx),Math.round(ty),1,1)});fbM.globalAlpha=1}
-  if(rows.length&&fbSelected>=rows.length)fbSelected=0;
-  rows.forEach((o,i)=>{const f=o.air,[x,y]=polar(o.nm,o.b),tag=ident(f).slice(0,10),c=activeColor('call');if(i===fbSelected){fbM.globalAlpha=.75+.25*Math.sin(now/200);fbPlane(fbM,x,y,5,+f.track||0,c);fbM.globalAlpha=1}else fbPlane(fbM,x,y,3,+f.track||0,c);const tw=fbMeasure3(tag);let tx=x+5;if(tx+tw>Wm-1)tx=x-5-tw;let ty=y-6;if(ty<1)ty=y+4;fbM.globalAlpha=.82;fbText3(fbM,tag,Math.round(tx),Math.round(ty),c);fbM.globalAlpha=1});
-  const sel=rows[fbSelected];if(sel){const f=sel.air,l1=ident(f),l2=`${sel.nm.toFixed(1)}NM ${altitude(f)==='GND'?'GND':'FL'+altitude(f)}`,c=activeColor('call');fbText5(fbM,l1,1,Hm-17,c);fbText5(fbM,l2,1,Hm-9,activeColor('alt'))}
-  fbRenderLeds(W,H,d);
-}
-
-function drawPixelBoard(W,H,d){
-  const {mw:MW,mh:MH}=fbResize(W,H,d);fbM.clearRect(0,0,MW,MH);const rows=fbRows();
-  if(!rows.length){const msg='NO CONTACTS';fbText5(fbM,msg,Math.max(2,Math.floor((MW-fbMeasure5(msg))/2)),Math.max(2,Math.floor(MH/2)-4),activeColor('call'));fbRenderLeds(W,H,d);return}
-
-  // V1.0 FINAL — Stacked Flight Board: one datum per line, no table columns.
-  // Cards flow top-to-bottom, then into the next vertical lane only when necessary.
-  const marginX=5, top=5, bottom=5, laneGap=8;
-  const cardH=61; // logical LED rows: enough for 10 stacked information lines
-  const perLane=Math.max(1,Math.floor((MH-top-bottom)/cardH));
-  const laneCount=Math.max(1,Math.min(3,Math.floor((MW-marginX*2+laneGap)/(82+laneGap))));
-  const perPage=perLane*laneCount, pages=Math.ceil(rows.length/perPage), page=Math.floor(performance.now()/10000)%pages;
-  const shown=rows.slice(page*perPage,page*perPage+perPage);
-  const laneW=Math.floor((MW-marginX*2-laneGap*(laneCount-1))/laneCount);
-
-  shown.forEach((o,i)=>{
-    const f=o.air||{}, lane=Math.floor(i/perLane), slot=i%perLane;
-    const x=marginX+lane*(laneW+laneGap), y=top+slot*cardH;
-    const call=ident(f).slice(0,13);
-    const airline=(f.airline||f.operator||'').toString().slice(0,20);
-    const origin=(f.origin||f.from||'').toString().slice(0,15);
-    const destination=(f.destination||f.to||'').toString().slice(0,15);
-    const route=(f.route||f.flight_route||(origin||destination?`${origin||'---'}-${destination||'---'}`:'')).toString().slice(0,20);
-    const type=(f.t||f.type||f.aircraft_type||'').toString().slice(0,12);
-    const reg=(f.r||f.reg||f.registration||'').toString().slice(0,12);
-    const alt=altitude(f), spd=Number.isFinite(+f.gs)?Math.round(+f.gs):'---', hdg=Number.isFinite(+f.track)?String(Math.round(+f.track)).padStart(3,'0'):'---';
-
-    fbPlane(fbM,x+3,y+5,4,+f.track||0,activeColor('route'));
-    fbText5(fbM,call,x+9,y,activeColor('call'));
-    let yy=y+9;
-    if(airline){fbText3(fbM,airline,x+9,yy,activeColor('call'));yy+=6}
-    if(route){fbText5(fbM,route,x+9,yy,activeColor('route'));yy+=9}
-    if(origin){fbText3(fbM,`DE: ${origin}`,x+9,yy,activeColor('call'));yy+=6}
-    if(destination){fbText3(fbM,`VERS: ${destination}`,x+9,yy,activeColor('call'));yy+=6}
-    const ac=[type,reg].filter(Boolean).join(' ');if(ac){fbText3(fbM,ac,x+9,yy,activeColor('type'));yy+=6}
-    fbText5(fbM,`ALT: ${alt==='GND'?'GND':'FL'+alt}`,x+9,yy,activeColor('alt'));yy+=9;
-    fbText5(fbM,`VIT: ${spd}KT`,x+9,yy,activeColor('speed'));yy+=9;
-    fbText3(fbM,`HDG: ${hdg}  DIST: ${o.nm.toFixed(1)}NM`,x+9,yy,activeColor('hdg'));
-
-    // discreet dotted separator; no boxed/table look
-    const sy=Math.min(MH-1,y+cardH-3);fbM.fillStyle=activeColor('alt');fbM.globalAlpha=.18;
-    for(let xx=x+2;xx<Math.min(MW-2,x+laneW-2);xx+=3)fbM.fillRect(xx,sy,1,1);fbM.globalAlpha=1;
-  });
-  if(pages>1)fbText3(fbM,`PAGE ${page+1}/${pages}`,MW-fbMeasure3(`PAGE ${page+1}/${pages}`)-4,MH-6,activeColor('type'));
-  fbRenderLeds(W,H,d);
-}
-function applyDisplayMode(mode){displayMode=['radar','radarwx','ledradar','board'].includes(mode)?mode:'radar';localStorage.setItem('jts_display_mode',displayMode);wxOn=displayMode==='radarwx';radarMode.classList.toggle('active',displayMode==='radar');radarWxMode.classList.toggle('active',displayMode==='radarwx');ledRadarMode.classList.toggle('active',displayMode==='ledradar');boardMode.classList.toggle('active',displayMode==='board');if(wxOn)loadWX();else wxInfo.textContent="NO LAYER";}
-
-function draw(){
- classicHit=[];
- interpolateTracks();
- if(performance.now()-fbLastCycle>6000){fbSelected++;fbLastCycle=performance.now();}
- const W=C.width,H=C.height,cx=W/2,cy=H/2,R=Math.min(W,H)*.475,d=devicePixelRatio||1;
- if(displayMode==='board'){drawPixelBoard(W,H,d);requestAnimationFrame(draw);return;} if(displayMode==='ledradar'){sweep=(sweep+.0030)%1;drawLedRadar(W,H,d);requestAnimationFrame(draw);return;}
- X.clearRect(0,0,W,H);X.save();X.translate(cx,cy);
-
- // WX sits beneath the radar symbology.
- drawWX(R,d);
-
- X.strokeStyle="rgba(52,150,52,.58)";X.fillStyle=G;X.lineWidth=Math.max(1,d*.72);
- for(let i=1;i<=4;i++){X.beginPath();X.arc(0,0,R*i/4,0,Math.PI*2);X.stroke();X.font=`${11*d}px Courier New`;X.textAlign="center";X.fillText((range*i/4).toFixed(range<10?1:0),0,-R*i/4+12*d)}
- for(let z=0;z<360;z+=5){let a=rad(z-90),inner=R*(z%30===0?.935:z%10===0?.958:.978);X.beginPath();X.moveTo(Math.cos(a)*inner,Math.sin(a)*inner);X.lineTo(Math.cos(a)*R,Math.sin(a)*R);X.stroke()}
- for(let z=0;z<360;z+=30){let a=rad(z-90);X.beginPath();X.moveTo(Math.cos(a)*R*.12,Math.sin(a)*R*.12);X.lineTo(Math.cos(a)*R*.92,Math.sin(a)*R*.92);X.stroke();X.font=`bold ${12*d}px Courier New`;X.textAlign="center";X.fillText(String(z).padStart(3,"0"),Math.cos(a)*R*.895,Math.sin(a)*R*.895+3*d)}
-
- prevSweep=sweep*360;sweep=(sweep+.0030)%1;const sweepDeg=sweep*360,sa=rad(sweepDeg-90);
- let gr=X.createRadialGradient(0,0,0,0,0,R);gr.addColorStop(0,"rgba(114,255,85,.015)");gr.addColorStop(.75,"rgba(114,255,85,.10)");gr.addColorStop(1,"rgba(114,255,85,.34)");
- X.fillStyle=gr;X.beginPath();X.moveTo(0,0);X.arc(0,0,R,sa-.23,sa);X.closePath();X.fill();X.strokeStyle=G;X.beginPath();X.moveTo(0,0);X.lineTo(Math.cos(sa)*R,Math.sin(sa)*R);X.stroke();
- X.strokeStyle=G;X.lineWidth=Math.max(1,d);X.beginPath();X.arc(0,0,7*d,0,Math.PI*2);X.moveTo(-14*d,0);X.lineTo(14*d,0);X.moveTo(0,-14*d);X.lineTo(0,14*d);X.stroke();X.beginPath();X.arc(0,0,2*d,0,Math.PI*2);X.fillStyle=G;X.fill();
-
- if(lat!==null){
-   for(const tr of tracks.values()){
-     const[nm,b]=nav(lat,lon,tr.lat,tr.lon);if(nm>range)continue;if(crossed(prevSweep,sweepDeg,b))tr.glow=1;
-     for(let i=0;i<tr.trail.length;i++){const p=tr.trail[i],[tn,tb]=nav(lat,lon,p[0],p[1]);if(tn>range)continue;const rr=R*tn/range,ang=rad(tb-90),px=Math.cos(ang)*rr,py=Math.sin(ang)*rr,age=nowSec()-p[2],alpha=Math.max(0,.20*(1-age/9));X.fillStyle=`rgba(114,255,85,${alpha})`;X.beginPath();X.arc(px,py,Math.max(1,1.6*d),0,Math.PI*2);X.fill()}
-     const rr=R*nm/range,ang=rad(b-90),px=Math.cos(ang)*rr,py=Math.sin(ang)*rr,alpha=.38+.62*tr.glow;
-     const a=tr.air; const track=Number.isFinite(+a.track)?+a.track:0, h=rad(track-90);
-     X.save();X.translate(px,py);X.rotate(h+Math.PI/2);X.fillStyle=`rgba(114,255,85,${alpha})`;X.strokeStyle=`rgba(114,255,85,${alpha})`;X.shadowColor=G;X.shadowBlur=(4+10*tr.glow)*d;
-     X.beginPath();X.moveTo(0,-7*d);X.lineTo(2*d,-1*d);X.lineTo(8*d,2*d);X.lineTo(8*d,4*d);X.lineTo(2*d,3*d);X.lineTo(1.5*d,7*d);X.lineTo(4*d,9*d);X.lineTo(4*d,10*d);X.lineTo(0,9*d);X.lineTo(-4*d,10*d);X.lineTo(-4*d,9*d);X.lineTo(-1.5*d,7*d);X.lineTo(-2*d,3*d);X.lineTo(-8*d,4*d);X.lineTo(-8*d,2*d);X.lineTo(-2*d,-1*d);X.closePath();X.fill();X.restore();X.shadowBlur=0;
-     if(Number.isFinite(+a.track)){X.strokeStyle=`rgba(114,255,85,${.35+.45*tr.glow})`;X.beginPath();X.moveTo(px+Math.cos(h)*10*d,py+Math.sin(h)*10*d);X.lineTo(px+Math.cos(h)*34*d,py+Math.sin(h)*34*d);X.stroke()}
-     // V1.3H // configurable CLASSIC labels + smart declutter.
-     const idtxt=ident(a), focused=(classicFocus===tr.id && performance.now()<classicFocusUntil);
-     const hdg=Number.isFinite(+a.track)?String(Math.round(+a.track)).padStart(3,"0"):"---";
-     const altTxt=altitude(a)==="GND"?"GND":"FL"+altitude(a);
-     const spd=Number.isFinite(+a.gs)?Math.round(+a.gs)+"KT":"---KT";
-     const cfg=focused?{call:true,alt:true,speed:true,hdg:true,dist:true,smart:false}:classicCfg;
-     let lines=[]; if(cfg.alt)lines.push(`ALT: ${altTxt}`);if(cfg.speed)lines.push(`VIT: ${spd}`);
-     if(cfg.hdg&&cfg.dist)lines.push(`HDG: ${hdg}  DIST: ${nm.toFixed(1)}NM`);else if(cfg.hdg)lines.push(`HDG: ${hdg}`);else if(cfg.dist)lines.push(`DIST: ${nm.toFixed(1)}NM`);
-     const lx=px+10*d,ly=py-8*d,lineH=17*d,labelW=Math.max(72*d,...([idtxt,...lines].map(t=>t.length*8.5*d))),labelH=(1+lines.length)*lineH;
-     let crowded=false;if(cfg.smart&&!focused){for(const q of classicHit){if(!(lx+labelW<q.x||lx>q.x+q.w||ly+labelH<q.y||ly>q.y+q.h)){crowded=true;break}}}
-     classicHit.push({id:tr.id,x:lx,y:ly-14*d,w:labelW,h:Math.max(24*d,labelH+14*d),px,py});
-     X.textAlign="left";X.fillStyle=`rgba(114,255,85,${.72+.28*tr.glow})`;X.shadowColor="#000";X.shadowBlur=3*d;
-     if(cfg.call){X.font=`bold ${18*d}px Courier New`;X.fillText(idtxt,lx,ly)}
-     if(!crowded||focused){X.font=`${14*d}px Courier New`;let yy=ly+18*d;for(const line of lines){X.fillText(line,lx,yy);yy+=17*d}}
-     X.shadowBlur=0;
-   }
- }
- X.restore();requestAnimationFrame(draw);
-}
-
-function tryGPS(){
- link.textContent="GPS SEARCH";updateSystemHealth();
- navigator.geolocation.getCurrentPosition(
-  p=>{markPreset("position");setTZ(Intl.DateTimeFormat().resolvedOptions().timeZone||"UTC");setStation(p.coords.latitude,p.coords.longitude,"GPS");updateSystemHealth()},
-  ()=>{const a=+localStorage.getItem("jts_lat"),b=+localStorage.getItem("jts_lon");if(Number.isFinite(a)&&Number.isFinite(b)&&(a||b)){markPreset("position");setTZ(Intl.DateTimeFormat().resolvedOptions().timeZone||"UTC");setStation(a,b,"MEM");}else{station.textContent="POSITION REQUIRED";updateSystemHealth()}},
-  {enableHighAccuracy:true,timeout:10000,maximumAge:30000}
- );
-}
-
+function tryGPS(){link.textContent="GPS SEARCH";updateSystemHealth();navigator.geolocation.getCurrentPosition(p=>{markPreset("position");setTZ(Intl.DateTimeFormat().resolvedOptions().timeZone||"UTC");setStation(p.coords.latitude,p.coords.longitude,"GPS");updateSystemHealth()},()=>{const a=+localStorage.getItem("jts_lat"),b=+localStorage.getItem("jts_lon");if(Number.isFinite(a)&&Number.isFinite(b)&&(a||b)){markPreset("position");setTZ(Intl.DateTimeFormat().resolvedOptions().timeZone||"UTC");setStation(a,b,"MEM")}else{station.textContent="POSITION REQUIRED";updateSystemHealth()}},{enableHighAccuracy:true,timeout:10000,maximumAge:30000})}
 C.addEventListener('pointerdown',e=>{if(displayMode!=='radar'&&displayMode!=='radarwx')return;const r=C.getBoundingClientRect(),sx=C.width/r.width,sy=C.height/r.height,x=(e.clientX-r.left)*sx,y=(e.clientY-r.top)*sy,cx=C.width/2,cy=C.height/2;let best=null,bd=1e9;for(const h of classicHit){const dx=x-(cx+h.px),dy=y-(cy+h.py),dd=dx*dx+dy*dy;if(dd<bd){bd=dd;best=h}}if(best&&bd<(28*(devicePixelRatio||1))**2){classicFocus=best.id;classicFocusUntil=performance.now()+8000}});
-for(const [id,k] of Object.entries({showCall:'call',showAlt:'alt',showSpeed:'speed',showHdg:'hdg',showDist:'dist',smartDeclutter:'smart'})){document.getElementById(id).onchange=e=>{classicCfg[k]=e.target.checked;saveClassicCfg()}}
-document.getElementById('classicMinimal').onclick=()=>classicPreset('minimal');document.getElementById('classicStandard').onclick=()=>classicPreset('standard');document.getElementById('classicFull').onclick=()=>classicPreset('full');syncClassicUI();
-
-setInterval(updateClocks,250);updateClocks();
-
-setInterval(()=>{if(wxOn)loadWX()},300000);
-
-document.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>{
- range=+b.dataset.r;rangev.textContent=range;document.querySelectorAll("[data-r]").forEach(q=>q.classList.toggle("on",q===b));traffic();if(wxOn)loadWX()
-});
-renderPresetButtons();renderPresetEditor();
-resetPresets.onclick=()=>{if(confirm("Reset the 3 presets to defaults?")){myPresets=DEFAULT_PRESETS.map(x=>({...x}));savePresets()}};
-refreshData.onclick=forceTraffic;
-radarMode.onclick=()=>applyDisplayMode('radar');
-radarWxMode.onclick=()=>applyDisplayMode('radarwx');
-ledRadarMode.onclick=()=>applyDisplayMode('ledradar');
-boardMode.onclick=()=>applyDisplayMode('board');
-setupBtn.onclick=()=>{setup.classList.toggle('open');setupBtn.classList.toggle('open',setup.classList.contains('open'));applyLanguage(uiLang);};
-const ledPitchCtl=document.getElementById('ledPitch'),ledShapeCtl=document.getElementById('ledShape'),ledGlowCtl=document.getElementById('ledGlow'),ledBgCtl=document.getElementById('ledBg'),ledOffCtl=document.getElementById('ledOff');
-ledPitchCtl.value=String(ledPitch); pitchLabel.textContent=String(ledPitch);
-ledShapeCtl.value=ledShape; ledGlowCtl.value=String(ledGlow); glowLabel.textContent=String(ledGlow);
-ledBgCtl.value=ledBgColor;ledOffCtl.value=ledOffColor;
-ledPitchCtl.oninput=()=>{ledPitch=+ledPitchCtl.value;pitchLabel.textContent=String(ledPitch);localStorage.setItem('jts_led_pitch',ledPitch)};
-ledShapeCtl.onchange=()=>{ledShape=ledShapeCtl.value;localStorage.setItem('jts_led_shape',ledShape)};
-ledGlowCtl.oninput=()=>{ledGlow=+ledGlowCtl.value;glowLabel.textContent=String(ledGlow);localStorage.setItem('jts_led_glow',ledGlow)};
-ledBgCtl.oninput=()=>{ledBgColor=ledBgCtl.value;localStorage.setItem('jts_led_bg',ledBgColor);fbOffGrid=null};
-ledOffCtl.oninput=()=>{ledOffColor=ledOffCtl.value;localStorage.setItem('jts_led_off',ledOffColor);fbOffGrid=null};
-document.addEventListener('keydown',e=>{if((e.key==='r'||e.key==='R')&&!/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName))applyDisplayMode(displayMode==='radar'?'radarwx':displayMode==='radarwx'?'ledradar':displayMode==='ledradar'?'board':'radar')});
-
-setTZ(Intl.DateTimeFormat().resolvedOptions().timeZone||"UTC");
-colorPreset.value=presetMode; colCall.value=dataColors.call;colRoute.value=dataColors.route;colType.value=dataColors.type;colAlt.value=dataColors.alt;colSpeed.value=dataColors.speed;colHdg.value=dataColors.hdg;
-colorPreset.onchange=()=>{presetMode=colorPreset.value;localStorage.setItem('jts_color_preset',colorPreset.value)};
-[['colCall','call'],['colRoute','route'],['colType','type'],['colAlt','alt'],['colSpeed','speed'],['colHdg','hdg']].forEach(([id,k])=>document.getElementById(id).oninput=e=>{dataColors[k]=e.target.value;localStorage.setItem('jts_data_colors',JSON.stringify(dataColors));presetMode='multi';colorPreset.value='multi';localStorage.setItem('jts_color_preset','multi')});
-function applyLanguage(l){uiLang=l==='fr'?'fr':'en';localStorage.setItem('jts_lang',uiLang);const t=LANG[uiLang];
- document.querySelector('.rangebox .k').textContent=t.range;document.querySelector('.displaybox .k').textContent=t.display;document.querySelector('.presetbox .k').textContent=t.presets;
- const ks=document.querySelectorAll('.timegrid .k');if(ks[0])ks[0].textContent=t.utc;if(ks[1])ks[1].textContent=t.local;
- setupBtn.textContent=t.setup+' '+(setup.classList.contains('open')?'▲':'▼');document.querySelector('#setup>.k').textContent=t.presetedit;resetPresets.textContent=t.reset;dataColorsTitle.textContent=t.colors;refreshData.textContent=t.refresh;
- const app=[...document.querySelectorAll('#setup .k')];if(app[1])app[1].textContent=t.appearance;
- const hp=document.querySelectorAll('.headtech span');const labs=[t.online,t.contacts,t.last,t.source,t.fails,t.next,t.station,t.version];hp.forEach((e,i)=>{const b=e.querySelector('b');if(b)e.childNodes[0].nodeValue=(i===0?'DATA ':labs[i]+' ')});
- document.querySelectorAll('#presetEditor button').forEach(b=>b.textContent=t.find);renderPresetButtons();
- langEN.classList.toggle('active',uiLang==='en');langFR.classList.toggle('active',uiLang==='fr');updateSystemHealth();
-}
-langEN.onclick=()=>applyLanguage('en');langFR.onclick=()=>applyLanguage('fr');
-
-applyDisplayMode(displayMode);
-applyLanguage(uiLang);
-tryGPS();
-draw();
+for(const [id,k] of Object.entries({showCall:'call',showAlt:'alt',showSpeed:'speed',showHdg:'hdg',showDist:'dist',smartDeclutter:'smart'})){document.getElementById(id).onchange=e=>{classicCfg[k]=e.target.checked;saveClassicCfg()}}document.getElementById('classicMinimal').onclick=()=>classicPreset('minimal');document.getElementById('classicStandard').onclick=()=>classicPreset('standard');document.getElementById('classicFull').onclick=()=>classicPreset('full');syncClassicUI();
+setInterval(updateClocks,250);updateClocks();setInterval(()=>{if(wxOn)loadWX()},300000);
+document.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>{range=+b.dataset.r;rangev.textContent=range;document.querySelectorAll("[data-r]").forEach(q=>q.classList.toggle("on",q===b));traffic();if(wxOn)loadWX()});renderPresetButtons();renderPresetEditor();resetPresets.onclick=()=>{if(confirm("Reset the 3 presets to defaults?")){myPresets=DEFAULT_PRESETS.map(x=>({...x}));savePresets()}};refreshData.onclick=forceTraffic;radarMode.onclick=()=>applyDisplayMode('radar');radarWxMode.onclick=()=>applyDisplayMode('radarwx');ledRadarMode.onclick=()=>applyDisplayMode('ledradar');boardMode.onclick=()=>applyDisplayMode('board');setupBtn.onclick=()=>{setup.classList.toggle('open');setupBtn.classList.toggle('open',setup.classList.contains('open'));applyLanguage(uiLang)};
+const ledPitchCtl=document.getElementById('ledPitch'),ledShapeCtl=document.getElementById('ledShape'),ledGlowCtl=document.getElementById('ledGlow'),ledBgCtl=document.getElementById('ledBg'),ledOffCtl=document.getElementById('ledOff');ledPitchCtl.value=String(ledPitch);pitchLabel.textContent=String(ledPitch);ledShapeCtl.value=ledShape;ledGlowCtl.value=String(ledGlow);glowLabel.textContent=String(ledGlow);ledBgCtl.value=ledBgColor;ledOffCtl.value=ledOffColor;ledPitchCtl.oninput=()=>{ledPitch=+ledPitchCtl.value;pitchLabel.textContent=String(ledPitch);localStorage.setItem('jts_led_pitch',ledPitch)};ledShapeCtl.onchange=()=>{ledShape=ledShapeCtl.value;localStorage.setItem('jts_led_shape',ledShape)};ledGlowCtl.oninput=()=>{ledGlow=+ledGlowCtl.value;glowLabel.textContent=String(ledGlow);localStorage.setItem('jts_led_glow',ledGlow)};ledBgCtl.oninput=()=>{ledBgColor=ledBgCtl.value;localStorage.setItem('jts_led_bg',ledBgColor);fbOffGrid=null};ledOffCtl.oninput=()=>{ledOffColor=ledOffCtl.value;localStorage.setItem('jts_led_off',ledOffColor);fbOffGrid=null};document.addEventListener('keydown',e=>{if((e.key==='r'||e.key==='R')&&!/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName))applyDisplayMode(displayMode==='radar'?'radarwx':displayMode==='radarwx'?'ledradar':displayMode==='ledradar'?'board':'radar')});
+setTZ(Intl.DateTimeFormat().resolvedOptions().timeZone||"UTC");colorPreset.value=presetMode;colCall.value=dataColors.call;colRoute.value=dataColors.route;colType.value=dataColors.type;colAlt.value=dataColors.alt;colSpeed.value=dataColors.speed;colHdg.value=dataColors.hdg;colorPreset.onchange=()=>{presetMode=colorPreset.value;localStorage.setItem('jts_color_preset',colorPreset.value)};[['colCall','call'],['colRoute','route'],['colType','type'],['colAlt','alt'],['colSpeed','speed'],['colHdg','hdg']].forEach(([id,k])=>document.getElementById(id).oninput=e=>{dataColors[k]=e.target.value;localStorage.setItem('jts_data_colors',JSON.stringify(dataColors));presetMode='multi';colorPreset.value='multi';localStorage.setItem('jts_color_preset','multi')});
+function applyLanguage(l){uiLang=l==='fr'?'fr':'en';localStorage.setItem('jts_lang',uiLang);const t=LANG[uiLang];document.querySelector('.rangebox .k').textContent=t.range;document.querySelector('.displaybox .k').textContent=t.display;document.querySelector('.presetbox .k').textContent=t.presets;const ks=document.querySelectorAll('.timegrid .k');if(ks[0])ks[0].textContent=t.utc;if(ks[1])ks[1].textContent=t.local;setupBtn.textContent=t.setup+' '+(setup.classList.contains('open')?'▲':'▼');document.querySelector('#setup>.k').textContent=t.presetedit;resetPresets.textContent=t.reset;dataColorsTitle.textContent=t.colors;refreshData.textContent=t.refresh;const app=[...document.querySelectorAll('#setup .k')];if(app[1])app[1].textContent=t.appearance;const hp=document.querySelectorAll('.headtech span');const labs=[t.online,t.contacts,t.last,t.source,t.fails,t.next,t.station,t.version];hp.forEach((e,i)=>{const b=e.querySelector('b');if(b)e.childNodes[0].nodeValue=(i===0?'DATA ':labs[i]+' ')});document.querySelectorAll('#presetEditor button').forEach(b=>b.textContent=t.find);renderPresetButtons();langEN.classList.toggle('active',uiLang==='en');langFR.classList.toggle('active',uiLang==='fr');updateSystemHealth()}
+langEN.onclick=()=>applyLanguage('en');langFR.onclick=()=>applyLanguage('fr');applyDisplayMode(displayMode);applyLanguage(uiLang);tryGPS();draw();
 </script>
-
 <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));}</script>
 </body></html>
